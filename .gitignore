@@ -5,3 +5,8 @@ dist/
 .DS_Store
 bun.lock
 docs/
+# Internal spec/docs (local only, not committed)
+AGENTS.md
+SPEC.md
+EVALUATION.md
+IMPLEMENTATION.md
