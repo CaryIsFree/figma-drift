@@ -1,116 +1,133 @@
-import { chromium, type Browser } from 'playwright';
+import { chromium, type Browser, type Page } from 'playwright';
 import type { LiveSpecs } from '../types';
-import { rgbStringToHex, deduplicateFonts } from '../lib/utils';
+import { deduplicateFonts } from '../lib/utils';
 
 let browser: Browser | null = null;
 
 async function getBrowser(): Promise<Browser> {
-  if (!browser) {
-    browser = await chromium.launch({
+  if (!browser || !browser.isConnected()) {
+    browser = await chromium.launch({ 
       headless: true,
+      timeout: 15000,
     });
   }
   return browser;
 }
 
-export async function captureScreenshot(
+export interface CaptureResult {
+  screenshot: Buffer;
+  specs: LiveSpecs;
+}
+
+export async function capturePageData(
   url: string,
   width: number,
   height: number
-): Promise<Buffer> {
-  const browser = await getBrowser();
-  const page = await browser.newPage();
+): Promise<CaptureResult> {
+  const b = await getBrowser();
+  const page = await b.newPage();
 
   try {
-    await page.setViewportSize({ width: Math.ceil(width), height: Math.ceil(height) });
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-
-    const screenshot = await page.screenshot({
-      type: 'png',
-      fullPage: false,
+    await page.setViewportSize({ 
+      width: Math.max(Math.ceil(width), 100), 
+      height: Math.max(Math.ceil(height), 100) 
     });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
-    return screenshot;
-  } finally {
-    await page.close();
-  }
-}
+    const [screenshot, specs] = await Promise.all([
+      page.screenshot({ type: 'png', fullPage: false }),
+      extractSpecsFromPage(page),
+    ]);
 
-export async function extractLiveSpecs(url: string): Promise<LiveSpecs> {
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-
-  try {
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
-
-    const specs = await page.evaluate(() => {
-      const colors = new Set<string>();
-      const fonts: { family: string; size: number; weight: number }[] = [];
-      const spacing = new Set<number>();
-
-      const elements = document.querySelectorAll('*');
-
-      elements.forEach((el) => {
-        const style = window.getComputedStyle(el);
-
-        const bgColor = style.backgroundColor;
-        const textColor = style.color;
-        if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') {
-          colors.add(rgbStringToHex(bgColor));
-        }
-        if (textColor) {
-          colors.add(rgbStringToHex(textColor));
-        }
-
-        const fontFamily = style.fontFamily.split(',')[0]?.trim().replace(/['"]/g, '');
-        const fontSize = parseFloat(style.fontSize);
-        const fontWeight = parseInt(style.fontWeight) || 400;
-        if (fontFamily && fontSize) {
-          fonts.push({ family: fontFamily, size: fontSize, weight: fontWeight });
-        }
-
-        const paddings = [
-          parseFloat(style.paddingTop),
-          parseFloat(style.paddingRight),
-          parseFloat(style.paddingBottom),
-          parseFloat(style.paddingLeft),
-        ];
-        paddings.forEach((p) => {
-          if (p > 0) spacing.add(Math.round(p));
-        });
-      });
-
-      function rgbStringToHex(rgb: string): string {
-        const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (!match) return rgb;
-        const r = parseInt(match[1] ?? '0');
-        const g = parseInt(match[2] ?? '0');
-        const b = parseInt(match[3] ?? '0');
-        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-      }
-
-      return {
-        colors: Array.from(colors),
-        fonts,
-        spacing: Array.from(spacing).sort((a, b) => a - b),
-      };
-    });
-
-    const uniqueFonts = deduplicateFonts(specs.fonts);
     const viewport = page.viewportSize();
 
     return {
-      colors: specs.colors,
-      fonts: uniqueFonts,
-      spacing: specs.spacing,
-      dimensions: {
-        width: viewport?.width ?? 0,
-        height: viewport?.height ?? 0,
+      screenshot,
+      specs: {
+        ...specs,
+        dimensions: {
+          width: viewport?.width ?? 0,
+          height: viewport?.height ?? 0,
+        },
       },
     };
   } finally {
     await page.close();
   }
+}
+
+interface PageSpecs {
+  colors: string[];
+  fonts: { family: string; size: number; weight: number }[];
+  spacing: number[];
+}
+
+async function extractSpecsFromPage(page: Page): Promise<Omit<LiveSpecs, 'dimensions'>> {
+  const specs: PageSpecs = await page.evaluate(`
+    (function() {
+      function rgbToHex(rgb) {
+        var match = rgb.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
+        if (!match) return rgb;
+        var r = parseInt(match[1] || '0');
+        var g = parseInt(match[2] || '0');
+        var b = parseInt(match[3] || '0');
+        return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+      }
+
+      var colors = [];
+      var colorSet = {};
+      var fonts = [];
+      var spacing = [];
+      var spacingSet = {};
+
+      var elements = document.querySelectorAll('*');
+
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        var style = window.getComputedStyle(el);
+
+        var bgColor = style.backgroundColor;
+        var textColor = style.color;
+        if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') {
+          var hex = rgbToHex(bgColor);
+          if (!colorSet[hex]) { colorSet[hex] = true; colors.push(hex); }
+        }
+        if (textColor) {
+          var hex2 = rgbToHex(textColor);
+          if (!colorSet[hex2]) { colorSet[hex2] = true; colors.push(hex2); }
+        }
+
+        var fontFamily = style.fontFamily.split(',')[0];
+        if (fontFamily) fontFamily = fontFamily.trim().replace(/['"]/g, '');
+        var fontSize = parseFloat(style.fontSize);
+        var fontWeight = parseInt(style.fontWeight) || 400;
+        if (fontFamily && fontSize) {
+          fonts.push({ family: fontFamily, size: fontSize, weight: fontWeight });
+        }
+
+        var paddings = [
+          parseFloat(style.paddingTop),
+          parseFloat(style.paddingRight),
+          parseFloat(style.paddingBottom),
+          parseFloat(style.paddingLeft)
+        ];
+        for (var j = 0; j < paddings.length; j++) {
+          var p = Math.round(paddings[j]);
+          if (p > 0 && !spacingSet[p]) { spacingSet[p] = true; spacing.push(p); }
+        }
+      }
+
+      spacing.sort(function(a, b) { return a - b; });
+
+      return { colors: colors, fonts: fonts, spacing: spacing };
+    })()
+  `);
+
+  return {
+    colors: specs.colors,
+    fonts: deduplicateFonts(specs.fonts),
+    spacing: specs.spacing,
+  };
 }
 
 export async function closeBrowser(): Promise<void> {

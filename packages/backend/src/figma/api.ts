@@ -120,7 +120,8 @@ export async function fetchFigmaImage(
 }
 
 export function parseFigmaUrl(url: string): { fileKey: string; nodeId: string | null } {
-  const fileMatch = url.match(/figma\.com\/(file|design)\/([a-zA-Z0-9]+)/);
+  // Supports: /design, /file, /figjam, /slides, /buzz, /site, /make
+  const fileMatch = url.match(/figma\.com\/(file|design|figjam|slides|buzz|site|make)\/([a-zA-Z0-9]+)/);
   const nodeMatch = url.match(/node-id=([^&]+)/);
 
   if (!fileMatch) {
@@ -133,8 +134,10 @@ export function parseFigmaUrl(url: string): { fileKey: string; nodeId: string | 
   }
 
   const nodeIdRaw = nodeMatch?.[1];
+  // Figma URLs use hyphen (1-281) but API expects colon (1:281)
+  const nodeId = nodeIdRaw ? decodeURIComponent(nodeIdRaw).replace(/-/g, ':') : null;
   return {
     fileKey,
-    nodeId: nodeIdRaw ? decodeURIComponent(nodeIdRaw) : null,
+    nodeId,
   };
 }

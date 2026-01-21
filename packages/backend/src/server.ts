@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
 import { compare } from './compare';
 import { closeBrowser } from './capture/screenshot';
@@ -30,7 +32,9 @@ app.post('/api/compare', async (c): Promise<Response> => {
       );
     }
 
-    const report = await compare(body, figmaToken);
+    const report = await compare(body, figmaToken, (step) => {
+      console.log(`  ⏳ ${step}`);
+    });
 
     return c.json<CompareResponse>({ success: true, report });
   } catch (error) {
@@ -45,9 +49,10 @@ process.on('SIGTERM', async (): Promise<void> => {
 });
 
 const port = parseInt(process.env.PORT ?? '3000');
-console.log(`Server running on http://localhost:${port}`);
 
-export default {
-  port,
+serve({
   fetch: app.fetch,
-};
+  port,
+}, (info) => {
+  console.log(`Server running on http://localhost:${info.port}`);
+});
