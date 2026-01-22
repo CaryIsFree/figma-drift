@@ -1,138 +1,153 @@
-import { chromium, type Browser, type Page } from 'playwright';
-import type { LiveSpecs } from '../types';
-import { deduplicateFonts } from '../lib/utils';
+import { chromium, type Browser } from 'playwright';
+import type { LiveSpecs, CaptureResult } from '../types';
 
-let browser: Browser | null = null;
+export type { CaptureResult };
 
-async function getBrowser(): Promise<Browser> {
-  if (!browser || !browser.isConnected()) {
-    browser = await chromium.launch({ 
-      headless: true,
-      timeout: 15000,
-    });
+let _browser: Browser | null = null;
+
+async function getBrowser() {
+  if (!_browser || !_browser.isConnected()) {
+    _browser = await chromium.launch();
   }
-  return browser;
-}
-
-export interface CaptureResult {
-  screenshot: Buffer;
-  specs: LiveSpecs;
+  return _browser;
 }
 
 export async function capturePageData(
   url: string,
   width: number,
-  height: number
-): Promise<CaptureResult> {
-  const b = await getBrowser();
-  const page = await b.newPage();
+  height: number,
+  selector?: string,
+  delay?: number,
+  headers?: Record<string, string>,
+  cookies?: string[]
+): Promise<{ screenshot: Buffer; specs: LiveSpecs }> {
+  const browser = await getBrowser();
+  const context = await browser.newContext({
+    extraHTTPHeaders: headers,
+  });
+  
+  if (cookies && cookies.length > 0) {
+    await context.addCookies(cookies.map(c => {
+      const parts = c.split(';').map(p => p.trim()).filter(p => p);
+      if (parts.length === 0) return {} as any;
+      const cookiePart = parts[0] ?? '';
+      const [name, value] = cookiePart.split('=');
+      return { name: name || '', value: value || '', domain: new URL(url).hostname } as any;
+    }));
+  }
+  const page = await context.newPage();
 
   try {
-    await page.setViewportSize({ 
-      width: Math.max(Math.ceil(width), 100), 
-      height: Math.max(Math.ceil(height), 100) 
+    await page.setViewportSize({
+      width: Math.max(Math.ceil(width), 100),
+      height: Math.max(Math.ceil(height), 100),
     });
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
 
-    const [screenshot, specs] = await Promise.all([
-      page.screenshot({ type: 'png', fullPage: false }),
-      extractSpecsFromPage(page),
-    ]);
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    const viewport = page.viewportSize();
+    // Optional delay for dynamic content (SPAs)
+    if (delay && delay > 0) {
+      await page.waitForTimeout(delay);
+    }
 
-    return {
-      screenshot,
-      specs: {
-        ...specs,
-        dimensions: {
-          width: viewport?.width ?? 0,
-          height: viewport?.height ?? 0,
-        },
-      },
-    };
+    try {
+      await page.waitForLoadState('networkidle', { timeout: 5000 });
+    } catch {
+      // Ignore network idle timeout
+    }
+
+    const extractSpecsScript = `
+      (function(selectorArg) {
+        const colors = new Set();
+        const fonts = [];
+        const spacing = new Set();
+
+        function rgbToHex(rgb) {
+          const result = rgb.match(/\\d+/g);
+          if (!result || result.length < 3) return rgb;
+          const r = parseInt(result[0] || '0');
+          const g = parseInt(result[1] || '0');
+          const b = parseInt(result[2] || '0');
+          return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        function processElement(el) {
+          const style = window.getComputedStyle(el);
+
+          if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+            colors.add(rgbToHex(style.backgroundColor));
+          }
+          if (style.color) {
+            colors.add(rgbToHex(style.color));
+          }
+
+          if (style.fontFamily && style.fontSize) {
+            fonts.push({
+              family: style.fontFamily.replace(/['"]/g, ''),
+              size: parseFloat(style.fontSize),
+              weight: parseInt(style.fontWeight) || 400,
+            });
+          }
+
+          ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'gap'].forEach(function(prop) {
+            const val = parseFloat(style[prop]);
+            if (val > 0) spacing.add(val);
+          });
+        }
+
+        let root = document;
+        if (selectorArg) {
+          const selected = document.querySelector(selectorArg);
+          if (selected) {
+            root = selected;
+            processElement(selected);
+          }
+        }
+
+        const elements = root.querySelectorAll('*');
+        elements.forEach(processElement);
+
+        const seen = new Set();
+        const dedupedFonts = fonts.filter(function(f) {
+          const key = f.family + '-' + f.size + '-' + f.weight;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+        return {
+          colors: Array.from(colors),
+          fonts: dedupedFonts,
+          spacing: Array.from(spacing).sort(function(a, b) { return a - b; }),
+          dimensions: { width: 0, height: 0 },
+        };
+      })(${selector ? JSON.stringify(selector) : 'null'})
+    `;
+
+    const specs = await page.evaluate(extractSpecsScript) as LiveSpecs;
+
+    let screenshot: Buffer;
+    if (selector) {
+      try {
+        const locator = page.locator(selector).first();
+        await locator.waitFor({ state: 'visible', timeout: 5000 });
+        screenshot = await locator.screenshot({ type: 'png' });
+      } catch (error: any) {
+        throw new Error(`Failed to find or capture element with selector "${selector}": ${error.message}`);
+      }
+    } else {
+      screenshot = await page.screenshot({ type: 'png', fullPage: false });
+    }
+
+    return { screenshot, specs };
   } finally {
-    await page.close();
+    await context.close();
   }
 }
 
-interface PageSpecs {
-  colors: string[];
-  fonts: { family: string; size: number; weight: number }[];
-  spacing: number[];
-}
-
-async function extractSpecsFromPage(page: Page): Promise<Omit<LiveSpecs, 'dimensions'>> {
-  const specs: PageSpecs = await page.evaluate(`
-    (function() {
-      function rgbToHex(rgb) {
-        var match = rgb.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
-        if (!match) return rgb;
-        var r = parseInt(match[1] || '0');
-        var g = parseInt(match[2] || '0');
-        var b = parseInt(match[3] || '0');
-        return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
-      }
-
-      var colors = [];
-      var colorSet = {};
-      var fonts = [];
-      var spacing = [];
-      var spacingSet = {};
-
-      var elements = document.querySelectorAll('*');
-
-      for (var i = 0; i < elements.length; i++) {
-        var el = elements[i];
-        var style = window.getComputedStyle(el);
-
-        var bgColor = style.backgroundColor;
-        var textColor = style.color;
-        if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)') {
-          var hex = rgbToHex(bgColor);
-          if (!colorSet[hex]) { colorSet[hex] = true; colors.push(hex); }
-        }
-        if (textColor) {
-          var hex2 = rgbToHex(textColor);
-          if (!colorSet[hex2]) { colorSet[hex2] = true; colors.push(hex2); }
-        }
-
-        var fontFamily = style.fontFamily.split(',')[0];
-        if (fontFamily) fontFamily = fontFamily.trim().replace(/['"]/g, '');
-        var fontSize = parseFloat(style.fontSize);
-        var fontWeight = parseInt(style.fontWeight) || 400;
-        if (fontFamily && fontSize) {
-          fonts.push({ family: fontFamily, size: fontSize, weight: fontWeight });
-        }
-
-        var paddings = [
-          parseFloat(style.paddingTop),
-          parseFloat(style.paddingRight),
-          parseFloat(style.paddingBottom),
-          parseFloat(style.paddingLeft)
-        ];
-        for (var j = 0; j < paddings.length; j++) {
-          var p = Math.round(paddings[j]);
-          if (p > 0 && !spacingSet[p]) { spacingSet[p] = true; spacing.push(p); }
-        }
-      }
-
-      spacing.sort(function(a, b) { return a - b; });
-
-      return { colors: colors, fonts: fonts, spacing: spacing };
-    })()
-  `);
-
-  return {
-    colors: specs.colors,
-    fonts: deduplicateFonts(specs.fonts),
-    spacing: specs.spacing,
-  };
-}
-
 export async function closeBrowser(): Promise<void> {
-  if (browser) {
-    await browser.close();
-    browser = null;
+  if (_browser) {
+    await _browser.close();
+    _browser = null;
   }
 }

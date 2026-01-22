@@ -97,7 +97,7 @@ export async function fetchFigmaImage(
   scale: number = 2
 ): Promise<string> {
   const response = await fetch(
-    `${FIGMA_API_BASE}/images/${fileKey}?ids=${encodeURIComponent(nodeId)}&scale=${scale}&format=png`,
+    `${FIGMA_API_BASE}/images/${fileKey}?ids=${encodeURIComponent(nodeId)}&scale=${scale}&format=png&use_absolute_bounds=true`,
     {
       headers: {
         'X-Figma-Token': token,

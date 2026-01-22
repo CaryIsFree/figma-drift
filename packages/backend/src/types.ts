@@ -7,10 +7,15 @@ export interface FigmaFrame {
   height: number;
 }
 
+export interface SpecItem<T> {
+  value: T;
+  nodes: { id: string; name: string }[];
+}
+
 export interface DesignSpecs {
-  colors: string[];                    // Hex values: ["#ffffff", "#000000"]
-  fonts: FontSpec[];
-  spacing: number[];                   // Unique values: [8, 16, 24]
+  colors: SpecItem<string>[];
+  fonts: SpecItem<FontSpec>[];
+  spacing: SpecItem<number>[];
   dimensions: { width: number; height: number };
 }
 
@@ -36,21 +41,30 @@ export interface DriftReport {
     diffImageBase64: string | null;   // PNG as base64
   };
   specs: {
-    colorDrift: string[];             // Colors in Figma but not in live
-    fontDrift: FontSpec[];            // Fonts that differ
-    spacingDrift: number[];           // Spacing values that differ
+    colorDrift: SpecItem<string>[];   // Colors in Figma but not in live (with source info)
+    fontDrift: SpecItem<FontSpec>[];  // Fonts that differ
+    spacingDrift: SpecItem<number>[]; // Spacing values that differ
   };
   passed: boolean;                    // true if diffPercent < threshold
 }
 
 export interface CompareRequest {
-  figmaUrl: string;                   // https://www.figma.com/file/XXX?node-id=YYY
-  liveUrl: string;                    // https://staging.example.com/page
-  threshold?: number;                 // Default: 0.1 (10% drift allowed)
+  figmaUrl: string;
+  liveUrl: string;
+  selector?: string;
+  delay?: number;
+  headers?: Record<string, string>;
+  cookies?: string[];
+  threshold?: number;
 }
 
 export interface CompareResponse {
   success: boolean;
   report?: DriftReport;
   error?: string;
+}
+
+export interface CaptureResult {
+  screenshot: Buffer;
+  specs: LiveSpecs;
 }

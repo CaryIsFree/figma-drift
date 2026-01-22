@@ -21,10 +21,10 @@ export type {
 } from './figma';
 
 export { 
-  captureScreenshot, 
-  extractLiveSpecs, 
+  capturePageData, 
   closeBrowser 
 } from './capture';
+export type { CaptureResult } from './capture';
 
 export { 
   compare 

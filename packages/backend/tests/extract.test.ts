@@ -12,7 +12,9 @@ describe('extractDesignSpecs', () => {
     };
 
     const specs = extractDesignSpecs(node);
-    expect(specs.colors).toContain('#ff0000');
+    expect(specs.colors).toHaveLength(1);
+    expect(specs.colors[0].value).toBe('#ff0000');
+    expect(specs.colors[0].nodes[0].id).toBe('1');
   });
 
   it('extracts dimensions', () => {
@@ -40,7 +42,8 @@ describe('extractDesignSpecs', () => {
     };
 
     const specs = extractDesignSpecs(node);
-    expect(specs.spacing).toContain(16);
-    expect(specs.spacing).toContain(8);
+    const values = specs.spacing.map(s => s.value);
+    expect(values).toContain(16);
+    expect(values).toContain(8);
   });
 });

@@ -1,18 +1,20 @@
 import type { FigmaNode } from './api';
-import type { DesignSpecs, FontSpec } from '../types';
-import { rgbaToHex, deduplicateFonts } from '../lib/utils';
+import type { DesignSpecs, FontSpec, SpecItem } from '../types';
+import { rgbaToHex } from '../lib/utils';
+
+type ValueMap<T> = Map<string, { value: T; nodes: { id: string; name: string }[] }>;
 
 export function extractDesignSpecs(node: FigmaNode): DesignSpecs {
-  const colors = new Set<string>();
-  const fonts: FontSpec[] = [];
-  const spacing = new Set<number>();
+  const colors: ValueMap<string> = new Map();
+  const fonts: ValueMap<FontSpec> = new Map();
+  const spacing: ValueMap<number> = new Map();
 
   traverseNode(node, colors, fonts, spacing);
 
   return {
-    colors: Array.from(colors),
-    fonts: deduplicateFonts(fonts),
-    spacing: Array.from(spacing).sort((a, b) => a - b),
+    colors: mapToSpecItems(colors),
+    fonts: mapToSpecItems(fonts),
+    spacing: mapToSpecItems(spacing).sort((a, b) => a.value - b.value),
     dimensions: {
       width: node.absoluteBoundingBox?.width ?? 0,
       height: node.absoluteBoundingBox?.height ?? 0,
@@ -20,17 +22,23 @@ export function extractDesignSpecs(node: FigmaNode): DesignSpecs {
   };
 }
 
+function mapToSpecItems<T>(map: ValueMap<T>): SpecItem<T>[] {
+  return Array.from(map.values());
+}
+
 function traverseNode(
   node: FigmaNode,
-  colors: Set<string>,
-  fonts: FontSpec[],
-  spacing: Set<number>
+  colors: ValueMap<string>,
+  fonts: ValueMap<FontSpec>,
+  spacing: ValueMap<number>
 ): void {
+  const nodeInfo = { id: node.id, name: node.name };
+
   if (node.fills) {
     for (const fill of node.fills) {
       if (fill.type === 'SOLID' && fill.color) {
         const hex = rgbaToHex(fill.color);
-        colors.add(hex);
+        addToMap(colors, hex, hex, nodeInfo);
       }
     }
   }
@@ -38,23 +46,37 @@ function traverseNode(
   if (node.style) {
     const { fontFamily, fontSize, fontWeight } = node.style;
     if (fontFamily && fontSize) {
-      fonts.push({
+      const font: FontSpec = {
         family: fontFamily,
         size: fontSize,
         weight: fontWeight ?? 400,
-      });
+      };
+      const key = `${font.family}-${font.size}-${font.weight}`;
+      addToMap(fonts, key, font, nodeInfo);
     }
   }
 
-  if (node.paddingLeft !== undefined) spacing.add(node.paddingLeft);
-  if (node.paddingRight !== undefined) spacing.add(node.paddingRight);
-  if (node.paddingTop !== undefined) spacing.add(node.paddingTop);
-  if (node.paddingBottom !== undefined) spacing.add(node.paddingBottom);
-  if (node.itemSpacing !== undefined) spacing.add(node.itemSpacing);
+  if (node.paddingLeft !== undefined) addToMap(spacing, String(node.paddingLeft), node.paddingLeft, nodeInfo);
+  if (node.paddingRight !== undefined) addToMap(spacing, String(node.paddingRight), node.paddingRight, nodeInfo);
+  if (node.paddingTop !== undefined) addToMap(spacing, String(node.paddingTop), node.paddingTop, nodeInfo);
+  if (node.paddingBottom !== undefined) addToMap(spacing, String(node.paddingBottom), node.paddingBottom, nodeInfo);
+  if (node.itemSpacing !== undefined) addToMap(spacing, String(node.itemSpacing), node.itemSpacing, nodeInfo);
 
   if (node.children) {
     for (const child of node.children) {
       traverseNode(child, colors, fonts, spacing);
     }
   }
+}
+
+function addToMap<T>(
+  map: ValueMap<T>,
+  key: string,
+  value: T,
+  nodeInfo: { id: string; name: string }
+): void {
+  if (!map.has(key)) {
+    map.set(key, { value, nodes: [] });
+  }
+  map.get(key)!.nodes.push(nodeInfo);
 }

@@ -12,7 +12,7 @@ export async function compare(
   figmaToken: string,
   onProgress?: ProgressCallback
 ): Promise<DriftReport> {
-  const { figmaUrl, liveUrl, threshold = 0.1 } = request;
+  const { figmaUrl, liveUrl, selector, delay, headers, cookies, threshold = 0.1 } = request;
   const log = (step: string, ms?: number) => {
     onProgress?.(ms ? `${step} (${ms}ms)` : step);
   };
@@ -29,7 +29,7 @@ export async function compare(
   log('Fetching Figma data...');
   const [figmaNode, figmaImageUrl] = await Promise.all([
     fetchFigmaNode(fileKey, nodeId, figmaToken),
-    fetchFigmaImage(fileKey, nodeId, figmaToken),
+    fetchFigmaImage(fileKey, nodeId, figmaToken, 2),
   ]);
   log('Fetched Figma data', time() - t);
 
@@ -46,7 +46,11 @@ export async function compare(
   const { screenshot: liveScreenshot, specs: liveSpecs } = await capturePageData(
     liveUrl,
     designSpecs.dimensions.width,
-    designSpecs.dimensions.height
+    designSpecs.dimensions.height,
+    selector,
+    delay,
+    headers,
+    cookies
   );
   log('Captured live page', time() - t);
 
@@ -64,8 +68,8 @@ export async function compare(
     timestamp: new Date().toISOString(),
     visual: {
       diffPercent: visualDiff.diffPercent,
-      diffImageBase64: visualDiff.diffImageBuffer
-        ? visualDiff.diffImageBuffer.toString('base64')
+      diffImageBase64: visualDiff.compositeImageBuffer
+        ? visualDiff.compositeImageBuffer.toString('base64')
         : null,
     },
     specs: {

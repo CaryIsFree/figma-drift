@@ -1,1 +1,2 @@
-export { captureScreenshot, extractLiveSpecs, closeBrowser } from './screenshot';
+export { capturePageData, closeBrowser } from './screenshot';
+export type { CaptureResult } from './screenshot';
