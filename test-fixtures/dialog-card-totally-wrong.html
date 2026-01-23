@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dialog Card - TOTALLY WRONG (Test Fixture)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 50px 80px;
+      min-height: 100vh;
+      /* WRONG: Bright purple background instead of neutral gray */
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      /* WRONG: Comic Sans instead of system font */
+      font-family: 'Comic Sans MS', 'Papyrus', cursive;
+    }
+    
+    .dialog-card {
+      /* WRONG: Completely different padding */
+      padding: 12px 8px;
+      
+      /* WRONG: Horizontal layout instead of vertical */
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px;
+      
+      /* WRONG: Different dimensions */
+      width: 466px;
+      height: 191px;
+      
+      /* WRONG: Dark background instead of white */
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      
+      /* WRONG: Thick colored border instead of subtle gray */
+      border: 4px dashed #ff6b6b;
+      
+      /* WRONG: Sharp corners instead of rounded */
+      border-radius: 0;
+      
+      position: relative;
+      
+      /* WRONG: Added box shadow that doesn't exist in design */
+      box-shadow: 0 20px 60px rgba(255, 107, 107, 0.4);
+    }
+    
+    .close-button {
+      /* WRONG: Bottom-left instead of top-right */
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      
+      /* WRONG: Much larger */
+      width: 40px;
+      height: 40px;
+      
+      /* WRONG: Filled background instead of transparent */
+      background: #ff6b6b;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      
+      cursor: pointer;
+      font-size: 24px;
+      
+      /* WRONG: White text */
+      color: #ffffff;
+      font-weight: bold;
+    }
+    
+    .heading {
+      /* WRONG: Italic instead of normal */
+      font-style: italic;
+      
+      /* WRONG: Thin weight instead of semibold */
+      font-weight: 300;
+      
+      /* WRONG: Much larger font */
+      font-size: 32px;
+      
+      /* WRONG: Neon green color instead of dark */
+      color: #00ff88;
+      
+      /* WRONG: Text shadow */
+      text-shadow: 0 0 10px #00ff88;
+      
+      /* WRONG: Underlined */
+      text-decoration: underline wavy #ff6b6b;
+      
+      margin: 0;
+      width: 100%;
+    }
+    
+    .body-text {
+      /* WRONG: Bright cyan instead of gray */
+      color: #00d4ff;
+      
+      /* WRONG: Much larger font */
+      font-size: 20px;
+      
+      /* WRONG: Uppercase transform */
+      text-transform: uppercase;
+      
+      /* WRONG: Letter spacing */
+      letter-spacing: 4px;
+      
+      margin: 0;
+      width: 100%;
+    }
+    
+    .button-group {
+      /* WRONG: Vertical stack instead of horizontal */
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      
+      /* WRONG: Right-aligned */
+      margin-left: auto;
+      margin-top: 0;
+    }
+    
+    .btn {
+      /* WRONG: Tiny padding */
+      padding: 4px 8px;
+      
+      /* WRONG: Pill shape instead of subtle rounded */
+      border-radius: 50px;
+      
+      /* WRONG: No border */
+      border: none;
+      
+      /* WRONG: Gradient background instead of white */
+      background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+      
+      cursor: pointer;
+      
+      /* WRONG: Tiny font */
+      font-size: 10px;
+      
+      /* WRONG: All caps */
+      text-transform: uppercase;
+      
+      /* WRONG: Extra bold */
+      font-weight: 900;
+      
+      /* WRONG: White text instead of dark */
+      color: #ffffff;
+      
+      /* WRONG: Added shadow */
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5);
+    }
+    
+    .btn:hover {
+      /* WRONG: Scale transform on hover */
+      transform: scale(1.2);
+      background: linear-gradient(90deg, #f5576c 0%, #f093fb 100%);
+    }
+    
+    /* WRONG: Added animated element that doesn't exist */
+    .sparkle {
+      position: absolute;
+      top: 10px;
+      right: 60px;
+      font-size: 24px;
+      animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="dialog-card">
+    <span class="sparkle">✨</span>
+    <button class="close-button">X</button>
+    <h2 class="heading">WRONG HEADING!!!</h2>
+    <p class="body-text">THIS IS ALL WRONG</p>
+    <div class="button-group">
+      <button class="btn">NOPE</button>
+      <button class="btn">WRONG</button>
+    </div>
+  </div>
+</body>
+</html>

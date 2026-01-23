@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brand Guidelines Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFAFA;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 48px;
+      width: 400px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #F26522;
+      border-radius: 8px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+    }
+
+    .heading {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .paragraph {
+      font-size: 16px;
+      font-weight: 400;
+      color: #4A4A68;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #F26522;
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #D55A1E;
+    }
+
+    .colors {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .color-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .color-orange { background: #F26522; }
+    .color-navy { background: #1A1A2E; }
+    .color-gray { background: #4A4A68; }
+    .color-light { background: #FAFAFA; border: 1px solid #E0E0E0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <span class="logo-text">ctRedo</span>
+    </div>
+    
+    <h1 class="heading">Brand Guidelines</h1>
+    
+    <p class="paragraph">
+      A simple, straightforward brand system with clean typography and a bold orange accent color.
+    </p>
+    
+    <a href="#" class="button">Get Started</a>
+    
+    <div class="colors">
+      <div class="color-swatch color-orange"></div>
+      <div class="color-swatch color-navy"></div>
+      <div class="color-swatch color-gray"></div>
+      <div class="color-swatch color-light"></div>
+    </div>
+  </div>
+</body>
+</html>

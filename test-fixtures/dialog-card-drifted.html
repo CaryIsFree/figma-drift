@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dialog Card - Drifted Test Fixture</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .dialog-card {
+      /* DRIFT: padding is 24px instead of 32px */
+      padding: 24px;
+      
+      /* DRIFT: gap is 16px instead of 24px */
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      
+      /* Correct dimensions */
+      width: 466px;
+      height: 191px;
+      
+      /* Correct styling */
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .close-button {
+      position: absolute;
+      /* DRIFT: position slightly off */
+      top: 20px;
+      right: 20px;
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666666;
+    }
+    
+    .heading {
+      /* DRIFT: font-weight 500 instead of 600 */
+      font-weight: 500;
+      font-size: 18px;
+      color: #1a1a1a;
+      margin: 0;
+    }
+    
+    .body-text {
+      /* DRIFT: color is #888 instead of #666 */
+      color: #888888;
+      font-size: 14px;
+      margin: 0;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+    
+    .btn {
+      /* DRIFT: padding different */
+      padding: 8px 16px;
+      
+      /* DRIFT: border-radius 4px instead of 6px */
+      border-radius: 4px;
+      
+      /* DRIFT: border color #999 instead of #000 */
+      border: 1px solid #999999;
+      
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 14px;
+      
+      /* DRIFT: font-weight 400 instead of 500 */
+      font-weight: 400;
+      color: #333333;
+    }
+    
+    .btn:hover {
+      background: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="dialog-card">
+    <button class="close-button">×</button>
+    <h2 class="heading">Text Heading</h2>
+    <p class="body-text">Body text</p>
+    <div class="button-group">
+      <button class="btn">Button</button>
+      <button class="btn">Button</button>
+    </div>
+  </div>
+</body>
+</html>

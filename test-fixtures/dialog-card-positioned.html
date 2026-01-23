@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dialog Card - Positioned (Test)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding: 100px;
+      min-height: 100vh;
+      background: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .dialog-card {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 466px;
+      height: 191px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      position: relative;
+    }
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+    }
+    .heading { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+    .body-text { font-size: 16px; color: #666; }
+    .button-group { display: flex; gap: 16px; margin-top: auto; justify-content: flex-end; }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      color: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+  <div class="dialog-card">
+    <button class="close-button">×</button>
+    <h2 class="heading">Text Heading</h2>
+    <p class="body-text">Body text</p>
+    <div class="button-group">
+      <button class="btn">Button</button>
+      <button class="btn">Button</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM Dashboard - Multi-Component Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #1a1a1a;
+      color: #fff;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      padding: 0 8px;
+    }
+
+    .sidebar-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .sidebar-item:hover { background: #333; }
+    .sidebar-item.active { background: #2563eb; }
+
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #1a1a1a;
+      border: 1px solid #e0e0e0;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .stat-change {
+      font-size: 14px;
+      color: #10b981;
+      margin-top: 4px;
+    }
+
+    .stat-change.negative { color: #ef4444; }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px 24px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    td { font-size: 14px; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+    .status-inactive { background: #fee2e2; color: #991b1b; }
+
+    .activity-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      padding: 24px;
+    }
+
+    .activity-header {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .activity-content { flex: 1; }
+    .activity-text { font-size: 14px; margin-bottom: 4px; }
+    .activity-time { font-size: 12px; color: #999; }
+
+    .dialog-card {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 466px;
+      min-height: 191px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .notifications-section {
+      margin-top: 24px;
+    }
+
+    .notifications-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+    }
+
+    .heading {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .body-text {
+      font-size: 16px;
+      color: #666;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 16px;
+      margin-top: auto;
+      justify-content: flex-end;
+    }
+
+    .dialog-card .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      color: #1a1a1a;
+    }
+
+    .form-section {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full-width { grid-column: span 2; }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-input {
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">Drift CRM</div>
+    <div class="sidebar-item active">Dashboard</div>
+    <div class="sidebar-item">Contacts</div>
+    <div class="sidebar-item">Companies</div>
+    <div class="sidebar-item">Deals</div>
+    <div class="sidebar-item">Tasks</div>
+    <div class="sidebar-item">Reports</div>
+    <div class="sidebar-item">Settings</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <h1>Dashboard</h1>
+      <div class="header-actions">
+        <button class="btn-secondary">Export</button>
+        <button class="btn-primary">+ New Contact</button>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Contacts</div>
+        <div class="stat-value">2,847</div>
+        <div class="stat-change">+12.5% from last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Deals</div>
+        <div class="stat-value">$1.2M</div>
+        <div class="stat-change">+8.2% from last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tasks Due</div>
+        <div class="stat-value">34</div>
+        <div class="stat-change negative">+5 from yesterday</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-value">24.8%</div>
+        <div class="stat-change">+2.1% from last month</div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div class="table-card">
+        <div class="table-header">Recent Contacts</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sarah Johnson</td>
+              <td>Acme Corp</td>
+              <td><span class="status-badge status-active">Active</span></td>
+              <td>$45,000</td>
+            </tr>
+            <tr>
+              <td>Mike Chen</td>
+              <td>TechStart Inc</td>
+              <td><span class="status-badge status-pending">Pending</span></td>
+              <td>$28,500</td>
+            </tr>
+            <tr>
+              <td>Emily Davis</td>
+              <td>Global Industries</td>
+              <td><span class="status-badge status-active">Active</span></td>
+              <td>$92,000</td>
+            </tr>
+            <tr>
+              <td>Alex Thompson</td>
+              <td>StartupXYZ</td>
+              <td><span class="status-badge status-inactive">Inactive</span></td>
+              <td>$15,000</td>
+            </tr>
+            <tr>
+              <td>Jessica Lee</td>
+              <td>Enterprise Co</td>
+              <td><span class="status-badge status-pending">Pending</span></td>
+              <td>$67,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="activity-card">
+        <div class="activity-header">Recent Activity</div>
+        <div class="activity-item">
+          <div class="activity-avatar">SJ</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Sarah Johnson</strong> updated deal status</div>
+            <div class="activity-time">2 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar">MC</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Mike Chen</strong> added new contact</div>
+            <div class="activity-time">15 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar">ED</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Emily Davis</strong> closed a deal</div>
+            <div class="activity-time">1 hour ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-avatar">AT</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>Alex Thompson</strong> scheduled a meeting</div>
+            <div class="activity-time">3 hours ago</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="form-title">Quick Add Contact</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-input" placeholder="Enter first name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-input" placeholder="Enter last name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="email@company.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" class="form-input" placeholder="+1 (555) 000-0000">
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Notes</label>
+          <textarea class="form-input" placeholder="Add any notes about this contact..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="notifications-section">
+      <div class="notifications-header">Notifications</div>
+      <div class="dialog-card">
+        <button class="close-button">×</button>
+        <h2 class="heading">Text Heading</h2>
+        <p class="body-text">Body text</p>
+        <div class="button-group">
+          <button class="btn">Button</button>
+          <button class="btn">Button</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
