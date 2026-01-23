@@ -6,7 +6,8 @@ import { compare } from './compare';
 import { closeBrowser } from './capture/screenshot';
 import type { CompareRequest, CompareResponse } from './types';
 
-const app = new Hono();
+// Create and configure the Hono app
+export const app = new Hono();
 
 app.use('*', cors());
 
@@ -43,16 +44,23 @@ app.post('/api/compare', async (c): Promise<Response> => {
   }
 });
 
-process.on('SIGTERM', async (): Promise<void> => {
-  await closeBrowser();
-  process.exit(0);
-});
+// Only start server if this file is run directly (not imported for testing)
+const isMainModule = typeof require !== 'undefined' 
+  ? require.main === module 
+  : process.argv[1]?.includes('server');
 
-const port = parseInt(process.env.PORT ?? '3000');
+if (isMainModule) {
+  process.on('SIGTERM', async (): Promise<void> => {
+    await closeBrowser();
+    process.exit(0);
+  });
 
-serve({
-  fetch: app.fetch,
-  port,
-}, (info) => {
-  console.log(`Server running on http://localhost:${info.port}`);
-});
+  const port = parseInt(process.env.PORT ?? '3000');
+
+  serve({
+    fetch: app.fetch,
+    port,
+  }, (info) => {
+    console.log(`Server running on http://localhost:${info.port}`);
+  });
+}

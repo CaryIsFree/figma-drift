@@ -101,12 +101,14 @@ program
       spinner.start('Connecting to backend...');
 
       const headers: Record<string, string> = (options.headers || []).reduce((acc, h) => {
-      const [key, ...rest] = h.split(':');
-      acc[key.trim()] = rest.join(':').trim();
-      return acc;
-    }, {});
+        const [key, ...rest] = h.split(':');
+        if (key) {
+          acc[key.trim()] = rest.join(':').trim();
+        }
+        return acc;
+      }, {} as Record<string, string>);
     
-    const response = await fetch(`${options.server}/api/compare`, {
+      const response = await fetch(`${options.server}/api/compare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify({

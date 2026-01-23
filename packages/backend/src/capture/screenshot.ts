@@ -32,7 +32,7 @@ export async function capturePageData(
       if (parts.length === 0) return {} as any;
       const cookiePart = parts[0] ?? '';
       const [name, value] = cookiePart.split('=');
-      return { name: name || '', value: value || '', domain: new URL(url).hostname } as any;
+      return { name: name || '', value: value || '', domain: new URL(url).hostname, path: '/' } as any;
     }));
   }
   const page = await context.newPage();
