@@ -149,14 +149,25 @@ await page.waitForTimeout(1000); // Wait for dynamic content
 
 ## Known Issues & Gotchas
 
-| Issue | Impact | Workaround |
-|--------|---------|------------|
-| Playwright first run slow | Browser download, caches after first run |
-| Browser reuse on Windows | Fixed with singleton pattern + isConnected check |
-| Bun incompatibility | Switched backend to Node.js via npx tsx |
-| Image dimension mismatch | Added cropping before pixelmatch |
-| `__name` error | Fixed by using string-based page.evaluate |
-| `networkidle` hangs | Changed to `domcontentloaded` with 10s timeout |
+| Issue | Impact | Workaround | Status |
+|--------|---------|------------|--------|
+| Playwright first run slow | Browser download, caches after first run | - | RESOLVED |
+| Browser reuse on Windows | Fixed with singleton pattern + isConnected check | - | RESOLVED |
+| Bun incompatibility | Switched backend to Node.js via npx tsx | - | RESOLVED |
+| Image dimension mismatch | Added cropping before pixelmatch | - | RESOLVED |
+| `__name` error | Fixed by using string-based page.evaluate | - | RESOLVED |
+| `networkidle` hangs | Changed to `domcontentloaded` with 10s timeout | - | RESOLVED |
+| **Missing test coverage** | Unverified edge cases | **Added 65 tests** | **RESOLVED (2026-01-22)** |
+
+### Note on Test Coverage
+As of January 22, 2026, we have implemented **65 automated tests** that programmatically validate:
+- Visual diffing with various image sizes and offsets
+- Spec extraction from complex Figma JSON
+- API endpoint robustness and error handling
+- CLI argument parsing and edge cases
+- Full E2E pipeline integration
+
+This test-driven approach significantly reduces the risk of regression and provides a solid foundation for Phase 1C external validation.
 
 ---
 

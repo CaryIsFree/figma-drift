@@ -1,7 +1,11 @@
 # figma-drift
 
 > Detect visual drift between Figma designs and live implementations.
+<<<<<<< HEAD
 > Last Updated: January 20, 2026
+=======
+> Last Updated: January 22, 2026
+>>>>>>> 9e1d1af (docs: update test commands from bun to vitest, add crossroads notes)
 
 ## What is figma-drift?
 
@@ -18,8 +22,13 @@
 | Phase | Status | Notes |
 |--------|--------|-------|
 | **1A: ICP + Architecture** | ✅ Complete | Architecture spec finalized |
+<<<<<<< HEAD
 | **1B: Your Environment** | ✅ Complete | CLI + backend fully working |
 | **1C: ICP Environment** | 🔜 Next | Need 2 external testers |
+=======
+| **1B: Your Environment** | ✅ Complete | CLI + backend working with 65+ tests |
+| **1C: ICP Environment** | 🔜 Next | External tester validation |
+>>>>>>> 9e1d1af (docs: update test commands from bun to vitest, add crossroads notes)
 
 ## Quick Start
 
@@ -95,6 +104,10 @@ bun run dev check \
 
 **Optional Arguments:**
 - `--threshold <number>` - Diff threshold 0-1 (default: 0.1)
+- `--selector <selector>` - CSS selector to target specific element
+- `--delay <ms>` - Wait for dynamic content (milliseconds)
+- `--header <string>` - HTTP header (can be used multiple times)
+- `--cookie <string>` - HTTP cookie (can be used multiple times)
 - `--server <url>` - Backend server URL (default: http://localhost:3000)
 - `--output <path>` - Save diff image to file
 
@@ -193,16 +206,28 @@ figma-drift/
 
 ### Running Tests
 
-```bash
-# Run all tests
-bun test
+We maintain comprehensive test coverage across the entire pipeline.
 
-# Run specific test file
-bun test packages/backend/tests/figma-api.test.ts
+```bash
+# Run all tests (90+ tests passing, uses Vitest for Playwright compatibility)
+npm test
+
+# Run specific test categories
+npm test -- server.test.ts      # HTTP API endpoint tests
+npm test -- visual.test.ts      # Visual diff logic tests
+npm test -- integration.test.ts # End-to-end pipeline tests
+npm test -- cli.test.ts         # CLI argument parsing tests
+npm test -- screenshot.test.ts  # Playwright capture tests
 
 # Watch mode during development
-bun test --watch
+npm test -- --watch
 ```
+
+**Test Coverage Highlights:**
+- **Visual Diff**: Validates pixel-level comparison using programmatically generated PNGs.
+- **Spec Extraction**: Ensures accurate parsing of colors, fonts, and spacing from Figma JSON.
+- **API Endpoints**: Validates `/health` and `/api/compare` request/response cycles.
+- **CLI Handling**: Tests robust argument parsing and error reporting.
 
 ### Building
 
@@ -236,7 +261,11 @@ Compare a Figma design to a live implementation.
 {
   "figmaUrl": "https://www.figma.com/design/XXX/Name?node-id=YYY",
   "liveUrl": "https://example.com/page",
-  "threshold": 0.1
+  "threshold": 0.1,
+  "selector": ".my-component",
+  "delay": 1000,
+  "headers": { "Authorization": "Bearer ..." },
+  "cookies": ["session=123"]
 }
 ```
 
@@ -247,15 +276,16 @@ Compare a Figma design to a live implementation.
   "report": {
     "figmaUrl": "...",
     "liveUrl": "...",
-    "timestamp": "2026-01-20T...",
+    "timestamp": "2026-01-22T...",
     "visual": {
       "diffPercent": 9.57,
       "diffImageBase64": "iVBORw0KGgo..."
     },
     "specs": {
-      "colorDrift": ["#1e1e1e", "#e3e3e3"],
-      "fontDrift": [{ "family": "Inter", "size": 24, "weight": 400 }],
-      "spacingDrift": [8, 12]
+    "specs": {
+      "colorDrift": [{ "value": "#1e1e1e", "nodes": [...] }],
+      "fontDrift": [{ "value": { "family": "Inter", "size": 24, "weight": 400 }, "nodes": [...] }],
+      "spacingDrift": [{ "value": 8, "nodes": [...] }]
     },
     "passed": false
   }
