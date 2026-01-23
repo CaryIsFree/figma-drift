@@ -4,6 +4,7 @@ dist/
 *.log
 .DS_Store
 bun.lock
+
 # Internal spec/docs (local only, not committed)
 AGENTS.md
 SPEC.md
@@ -11,3 +12,8 @@ EVALUATION.md
 IMPLEMENTATION.md
 CHANGELOG.md
 PROJECT_STATUS.md
+
+# Temporary/test output files (not committed)
+.sisyphus/
+packages/cli/diff.png
+tests/
