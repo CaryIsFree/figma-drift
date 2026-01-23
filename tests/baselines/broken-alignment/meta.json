@@ -1,0 +1,10 @@
+{
+  "description": "Broken alignment: Button shifted 10px to the right. Should FAIL (40%+ drift).",
+  "expectedDiffPercent": 45.0,
+  "expectedSeverity": "high",
+  "expectedCategories": {
+    "alignment": 42,
+    "color": 0,
+    "noise": 3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "description": "Perfect baseline: Live site matches Figma design exactly. Should return < 5% drift (minimal anti-aliasing).",
+  "expectedDiffPercent": 3.5,
+  "expectedSeverity": "low",
+  "expectedCategories": {
+    "alignment": 0,
+    "color": 1,
+    "noise": 2.5
+  }
+}
