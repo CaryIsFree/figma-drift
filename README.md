@@ -9,13 +9,51 @@
 
 ## What is figma-drift?
 
-**figma-drift** detects visual differences between Figma designs and live implementations. It automatically:
-- Extracts design specs (colors, fonts, spacing) from Figma
-- Captures screenshots of your live site
-- Compares them using pixel-level diffing
-- Generates a detailed drift report
+**figma-drift** detects visual differences between Figma designs and live implementations.
 
-**One-Liner:** Know when your site doesn't match the design—before users do.
+**What it does:**
+- Extracts design specs (colors, fonts, spacing) from Figma
+- Captures screenshots of your live site using Playwright
+- Compares them using pixel-level diffing (pixelmatch)
+- Checks if Figma specs (colors, fonts, spacing) exist in live implementation
+- Generates a detailed drift report
+- Optionally generates diff.png (use --output flag)
+
+**What it does NOT do:**
+- Compare relative positioning (e.g., is button 10px from left or 50px?)
+- Validate layout structure (e.g., are elements in correct order/hierarchy?)
+- Check element placement (e.g., is navbar above content area?)
+
+**Scope:** This tool answers "Are our colors/fonts/spacing from Figma present in live code?"
+           It does NOT answer "Are elements positioned exactly as in Figma?"
+
+**One-Liner:** Know when your site uses wrong colors/fonts/spacing from Figma - before users do.
+
+## Understanding diff.png Output
+
+**What it provides:**
+- Side-by-side visual comparison (Figma | Live | Diff overlay)
+- Labeled panels showing what each image represents
+- Red pixels mark EXACTLY where visual differences are
+- Diff percentage label quantifies severity
+
+**Combined with spec drift report:**
+1. Visual location (diff.png shows WHERE differences occur)
+2. Technical explanation (spec drift report explains WHAT values are missing)
+
+**Example output:**
+```
+┌────────────┬────────────┬────────────┐
+│  FIGMA    │   LIVE    │   DIFF     │
+│  DESIGN     │            │  (9.6%)   │
+│  [button]  │  [button]  │  [red]     │
+└────────────┴────────────┴────────────┘
+
+Spec Diff
+   Colors missing: #00ff00 (button should be green, but is red #ff0000)
+```
+
+**Result:** You see visually WHERE (red pixels) and understand WHY (spec drift). This is NOT "red noise" - it's a complete diagnostic package.
 
 ## Project Status
 
@@ -24,10 +62,10 @@
 | **1A: ICP + Architecture** | ✅ Complete | Architecture spec finalized |
 <<<<<<< HEAD
 | **1B: Your Environment** | ✅ Complete | CLI + backend fully working |
-| **1C: ICP Environment** | 🔜 Next | Need 2 external testers |
+ | **1C: ICP Environment** | Next | Need 2 external testers |
 =======
 | **1B: Your Environment** | ✅ Complete | CLI + backend working with 65+ tests |
-| **1C: ICP Environment** | 🔜 Next | External tester validation |
+ | **1C: ICP Environment** | Next | External tester validation |
 >>>>>>> 9e1d1af (docs: update test commands from bun to vitest, add crossroads notes)
 
 ## Quick Start
@@ -35,7 +73,6 @@
 ### Prerequisites
 
 - **Node.js 20+** (required for Playwright compatibility)
-- **Bun** (`npm install -g bun`) for package management
 - **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings)
 - **Figma Dev/Full seat** - Free tier has severe API rate limits (6 requests/month)
 
@@ -47,10 +84,10 @@ git clone https://github.com/XeroS/figma-drift.git
 cd figma-drift
 
 # Install dependencies
-bun install
+npm install
 
 # Install Playwright browsers (first time only)
-bunx playwright install chromium
+npx playwright install chromium
 ```
 
 ### Configuration
@@ -114,8 +151,8 @@ bun run dev check \
 #### Example Output
 
 ```
-⠹ Connecting to backend...
-✓ Comparison complete
+Connecting to backend...
+Comparison complete
 
 📊 Drift Report
 ================
@@ -123,17 +160,17 @@ Figma:  https://www.figma.com/design/...
 Live:   http://localhost:5555/brand-card.html
 Time:   2026-01-20T20:06:51.000Z
 
-🖼️  Visual Diff
+Visual Diff
    Difference: 9.57%
 
-📐 Spec Diff
+Spec Diff
    Colors missing: #1e1e1e, #e3e3e3
    Fonts missing: Inter 24px
    Spacing missing: 8px, 12px
 
-💾 Diff image saved to: diff.png
+Diff image saved to: diff.png
 
-❌ FAILED - Drift detected
+Figma:
 ```
 
 **Exit Codes:**
