@@ -1,72 +1,6 @@
 # figma-drift
 
 > Detect visual drift between Figma designs and live implementations.
-<<<<<<< HEAD
-> Last Updated: January 20, 2026
-=======
-> Last Updated: January 22, 2026
->>>>>>> 9e1d1af (docs: update test commands from bun to vitest, add crossroads notes)
-
-## What is figma-drift?
-
-**figma-drift** detects visual differences between Figma designs and live implementations.
-
-**What it does:**
-- Extracts design specs (colors, fonts, spacing) from Figma
-- Captures screenshots of your live site using Playwright
-- Compares them using pixel-level diffing (pixelmatch)
-- Checks if Figma specs (colors, fonts, spacing) exist in live implementation
-- Generates a detailed drift report
-- Optionally generates diff.png (use --output flag)
-
-**What it does NOT do:**
-- Compare relative positioning (e.g., is button 10px from left or 50px?)
-- Validate layout structure (e.g., are elements in correct order/hierarchy?)
-- Check element placement (e.g., is navbar above content area?)
-
-**Scope:** This tool answers "Are our colors/fonts/spacing from Figma present in live code?"
-           It does NOT answer "Are elements positioned exactly as in Figma?"
-
-**One-Liner:** Know when your site uses wrong colors/fonts/spacing from Figma - before users do.
-
-## Understanding diff.png Output
-
-**What it provides:**
-- Side-by-side visual comparison (Figma | Live | Diff overlay)
-- Labeled panels showing what each image represents
-- Red pixels mark EXACTLY where visual differences are
-- Diff percentage label quantifies severity
-
-**Combined with spec drift report:**
-1. Visual location (diff.png shows WHERE differences occur)
-2. Technical explanation (spec drift report explains WHAT values are missing)
-
-**Example output:**
-```
-┌────────────┬────────────┬────────────┐
-│  FIGMA    │   LIVE    │   DIFF     │
-│  DESIGN     │            │  (9.6%)   │
-│  [button]  │  [button]  │  [red]     │
-└────────────┴────────────┴────────────┘
-
-Spec Diff
-   Colors missing: #00ff00 (button should be green, but is red #ff0000)
-```
-
-**Result:** You see visually WHERE (red pixels) and understand WHY (spec drift). This is NOT "red noise" - it's a complete diagnostic package.
-
-## Project Status
-
-| Phase | Status | Notes |
-|--------|--------|-------|
-| **1A: ICP + Architecture** | ✅ Complete | Architecture spec finalized |
-<<<<<<< HEAD
-| **1B: Your Environment** | ✅ Complete | CLI + backend fully working |
- | **1C: ICP Environment** | Next | Need 2 external testers |
-=======
-| **1B: Your Environment** | ✅ Complete | CLI + backend working with 65+ tests |
- | **1C: ICP Environment** | Next | External tester validation |
->>>>>>> 9e1d1af (docs: update test commands from bun to vitest, add crossroads notes)
 
 ## Quick Start
 
@@ -74,12 +8,11 @@ Spec Diff
 
 - **Node.js 20+** (required for Playwright compatibility)
 - **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings)
-- **Figma Dev/Full seat** - Free tier has severe API rate limits (6 requests/month)
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/XeroS/figma-drift.git
 cd figma-drift
 
@@ -130,9 +63,9 @@ npx tsx watch src/server.ts
 ```bash
 cd packages/cli
 bun run dev check \
-  --figma "https://www.figma.com/design/YOUR_FILE/Name?node-id=1-2" \
-  --live "https://your-staging-site.com/page" \
-  --output diff.png
+   --figma "https://www.figma.com/design/YOUR_FILE/Name?node-id=1-2" \
+   --live "https://your-staging-site.com/page" \
+   --output diff.png
 ```
 
 **Required Arguments:**
@@ -153,15 +86,6 @@ bun run dev check \
 ```
 Connecting to backend...
 Comparison complete
-
-📊 Drift Report
-================
-Figma:  https://www.figma.com/design/...
-Live:   http://localhost:5555/brand-card.html
-Time:   2026-01-20T20:06:51.000Z
-
-Visual Diff
-   Difference: 9.57%
 
 Spec Diff
    Colors missing: #1e1e1e, #e3e3e3
@@ -184,108 +108,11 @@ The tool supports all Figma URL formats:
 - `figma.com/file/...` (legacy format)
 
 **To get the correct URL:**
+
 1. Open your Figma file
 2. Select a frame in the canvas
-3. Copy the URL from the browser address bar
+3. Copy URL from browser address bar
 4. Ensure it has a `node-id` parameter (e.g., `?node-id=1-299`)
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    SHARED BACKEND CORE                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────┐      ┌──────────────┐      ┌────────────┐     │
-│  │ Figma   │      │  Playwright  │      │ pixelmatch │     │
-│  │  API    │      │ Screenshots  │      │  diffing   │     │
-│  └────┬────┘      └──────┬───────┘      └─────┬──────┘     │
-│       │                  │                    │            │
-│       ▼                  ▼                    ▼            │
-│  design specs       live.png              diff report      │
-│                                           + diff.png       │
-└─────────────────────────────────────────────────────────────┘
-           │                                    │
-           ▼                                    ▼
-    ┌─────────────┐                    ┌──────────────┐
-    │     CLI     │                    │ Figma Plugin │
-    │   (MVT)     │                    │    (MVP)     │
-    └─────────────┘                    └──────────────┘
-```
-
-### Project Structure
-
-```
-figma-drift/
-├── packages/
-│   ├── backend/          # Core comparison engine
-│   │   ├── src/
-│   │   │   ├── lib/         # Shared utilities
-│   │   │   ├── types.ts     # TypeScript interfaces
-│   │   │   ├── figma/       # Figma API integration
-│   │   │   ├── capture/     # Playwright screenshots
-│   │   │   ├── compare/     # Visual & spec diffing
-│   │   │   └── server.ts    # Hono HTTP server
-│   │   ├── tests/           # Unit tests
-│   │   └── package.json
-│   ├── cli/              # Command-line interface
-│   │   ├── src/cli.ts
-│   │   └── package.json
-│   └── figma-plugin/     # Future: Figma plugin wrapper
-├── test-fixtures/        # HTML test pages
-├── docs/                 # Project documentation
-├── .env.example
-├── package.json
-└── README.md
-```
-
-## Development
-
-### Running Tests
-
-We maintain comprehensive test coverage across the entire pipeline.
-
-```bash
-# Run all tests (90+ tests passing, uses Vitest for Playwright compatibility)
-npm test
-
-# Run specific test categories
-npm test -- server.test.ts      # HTTP API endpoint tests
-npm test -- visual.test.ts      # Visual diff logic tests
-npm test -- integration.test.ts # End-to-end pipeline tests
-npm test -- cli.test.ts         # CLI argument parsing tests
-npm test -- screenshot.test.ts  # Playwright capture tests
-
-# Watch mode during development
-npm test -- --watch
-```
-
-**Test Coverage Highlights:**
-- **Visual Diff**: Validates pixel-level comparison using programmatically generated PNGs.
-- **Spec Extraction**: Ensures accurate parsing of colors, fonts, and spacing from Figma JSON.
-- **API Endpoints**: Validates `/health` and `/api/compare` request/response cycles.
-- **CLI Handling**: Tests robust argument parsing and error reporting.
-
-### Building
-
-```bash
-# Build all packages
-bun run build
-
-# Build specific package
-bun run build:backend
-bun run build:cli
-```
-
-### Type Checking
-
-```bash
-# Type check all packages
-bun run typecheck
-
-# Type check specific package
-cd packages/backend && bun run typecheck
-```
 
 ## API Reference
 
@@ -294,6 +121,7 @@ cd packages/backend && bun run typecheck
 Compare a Figma design to a live implementation.
 
 **Request:**
+
 ```json
 {
   "figmaUrl": "https://www.figma.com/design/XXX/Name?node-id=YYY",
@@ -307,6 +135,7 @@ Compare a Figma design to a live implementation.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -319,12 +148,13 @@ Compare a Figma design to a live implementation.
       "diffImageBase64": "iVBORw0KGgo..."
     },
     "specs": {
-    "specs": {
-      "colorDrift": [{ "value": "#1e1e1e", "nodes": [...] }],
-      "fontDrift": [{ "value": { "family": "Inter", "size": 24, "weight": 400 }, "nodes": [...] }],
-      "spacingDrift": [{ "value": 8, "nodes": [...] }]
-    },
-    "passed": false
+      "specs": {
+        "colorDrift": [{ "value": "#1e1e1e", "nodes": [...] }],
+        "fontDrift": [{ "value": { "family": "Inter", "size": 24, "weight": 400 }, "nodes": [...] }],
+        "spacingDrift": [{ "value": 8, "nodes": [...] }]
+      },
+      "passed": false
+    }
   }
 }
 ```
@@ -334,6 +164,7 @@ Compare a Figma design to a live implementation.
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "ok"
@@ -352,6 +183,7 @@ Health check endpoint.
 ### Diff Threshold
 
 Controls sensitivity of pixel diffing:
+
 - `0.05` - Very sensitive, detects tiny differences
 - `0.1` - Recommended default (10% tolerance)
 - `0.2` - Less sensitive, allows more variation
@@ -382,7 +214,8 @@ Controls sensitivity of pixel diffing:
 Your Figma account hit rate limits:
 - **Free tier**: 6 requests/month per endpoint
 - **Dev/Full seat**: 10 requests/minute
-- Solution: Upgrade to Dev seat ($15/mo) or wait for monthly reset
+
+**Solution:** Upgrade to Dev seat ($15/mo) or wait for monthly reset.
 
 ### "Figma API error: 403 Forbidden"
 
@@ -404,24 +237,11 @@ Your Figma account hit rate limits:
 
 Fixed in latest version. If you see this, pull latest code.
 
-## Roadmap
-
-### Phase 1C: ICP Environment (Next)
-- [ ] Find 2-3 external testers
-- [ ] Run on their Figma + staging
-- [ ] Collect feedback
-- [ ] Validate willingness to pay
-
-### MVP (Future)
-- [ ] Figma plugin UI
-- [ ] User authentication
-- [ ] Historical tracking
-
-## License
-
-MIT
-
 ## Contact
 
 - **GitHub**: [XeroS/figma-drift](https://github.com/XeroS/figma-drift)
 - **Issues**: [GitHub Issues](https://github.com/XeroS/figma-drift/issues)
+
+## License
+
+MIT
