@@ -3,14 +3,14 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "bun run --filter '*' build",
-    "build:backend": "bun run --filter backend build",
-    "build:cli": "bun run --filter cli build",
-    "test": "bun run --filter '*' test",
-    "lint": "bun run --filter '*' lint",
-    "typecheck": "bun run --filter '*' typecheck",
-    "serve:fixture": "bunx serve test-fixtures -p 5555",
-    "dev:backend": "bun run --filter backend dev"
+    "build": "npm run --workspace=@figma-drift/backend build && npm run --workspace=@figma-drift/cli build",
+    "build:backend": "npm run --workspace=@figma-drift/backend build",
+    "build:cli": "npm run --workspace=@figma-drift/cli build",
+    "test": "npm run --workspaces test",
+    "lint": "npm run --workspaces lint",
+    "typecheck": "npm run --workspaces typecheck",
+    "serve:fixture": "npx serve test-fixtures -p 5555",
+    "dev:backend": "npm run --workspace=@figma-drift/backend dev"
   },
   "devDependencies": {
     "typescript": "^5.3.0",

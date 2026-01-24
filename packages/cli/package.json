@@ -6,8 +6,8 @@
     "figma-drift": "./dist/cli.js"
   },
   "scripts": {
-    "dev": "bun run src/cli.ts",
-    "build": "bun build src/cli.ts --outdir dist --target node",
+    "dev": "npx tsx watch src/cli.ts",
+    "build": "tsc --outDir dist",
     "test": "bun test",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
