@@ -5,7 +5,7 @@ export type { CaptureResult };
 
 let _browser: Browser | null = null;
 
-async function getBrowser() {
+export async function getBrowser(): Promise<Browser> {
   if (!_browser || !_browser.isConnected()) {
     _browser = await chromium.launch();
   }

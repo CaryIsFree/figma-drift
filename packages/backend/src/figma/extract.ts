@@ -32,7 +32,12 @@ function traverseNode(
   fonts: ValueMap<FontSpec>,
   spacing: ValueMap<number>
 ): void {
-  const nodeInfo = { id: node.id, name: node.name };
+  if (!node) return;
+
+  const nodeInfo = {
+    id: node.id ?? `node-${Date.now()}-${Math.random()}`,
+    name: node.name ?? 'Unnamed Node'
+  };
 
   if (node.fills) {
     for (const fill of node.fills) {

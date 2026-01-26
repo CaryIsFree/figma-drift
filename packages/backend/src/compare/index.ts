@@ -68,8 +68,8 @@ export async function compare(
     timestamp: new Date().toISOString(),
     visual: {
       diffPercent: visualDiff.diffPercent,
-      diffImageBase64: visualDiff.compositeImageBuffer
-        ? visualDiff.compositeImageBuffer.toString('base64')
+      diffImageBase64: visualDiff.diffImageBuffer
+        ? visualDiff.diffImageBuffer.toString('base64')
         : null,
     },
     specs: {
