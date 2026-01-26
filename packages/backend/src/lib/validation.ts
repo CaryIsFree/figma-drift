@@ -3,8 +3,8 @@
  * Prevents Server-Side Request Forgery by validating URLs before use
  */
 
-import { ALLOWED_URL_SCHEMES, FORBIDDEN_HOSTS, ENV } from './constants';
-import { ValidationError } from './errors';
+import { ALLOWED_URL_SCHEMES, FORBIDDEN_HOSTS, ENV } from './constants.js';
+import { ValidationError } from './errors.js';
 
 /**
  * Validates a URL is safe for the system to access

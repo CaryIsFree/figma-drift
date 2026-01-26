@@ -2,11 +2,11 @@ import { config } from 'dotenv';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { cors } from 'hono/cors';
-import { compare } from './compare';
-import { closeBrowser } from './capture/screenshot';
-import type { CompareRequest, CompareResponse } from './types';
-import { DEFAULT_PORT, ERROR_MESSAGES, ENV } from './lib/constants';
-import { createLogger } from './lib/logger';
+import { compare } from './compare/index.js';
+import { closeBrowser } from './capture/screenshot.js';
+import type { CompareRequest, CompareResponse } from './types.js';
+import { DEFAULT_PORT, ERROR_MESSAGES, ENV } from './lib/constants.js';
+import { createLogger } from './lib/logger.js';
 
 // Load backend environment variables (needed for validation)
 import 'dotenv/config';

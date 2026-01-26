@@ -1,9 +1,9 @@
-import { parseFigmaUrl, fetchFigmaNode, fetchFigmaImage } from '../figma/api';
-import { extractDesignSpecs } from '../figma/extract';
-import { capturePageData } from '../capture/screenshot';
-import { compareImages } from './visual';
-import { compareSpecs } from './specs';
-import type { CompareRequest, DriftReport } from '../types';
+import { parseFigmaUrl, fetchFigmaNode, fetchFigmaImage } from '../figma/api.js';
+import { extractDesignSpecs } from '../figma/extract.js';
+import { capturePageData } from '../capture/screenshot.js';
+import { compareImages } from './visual.js';
+import { compareSpecs } from './specs.js';
+import type { CompareRequest, DriftReport } from '../types.js';
 
 type ProgressCallback = (step: string, ms?: number) => void;
 

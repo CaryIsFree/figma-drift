@@ -1,6 +1,6 @@
-import type { FigmaNode } from './api';
-import type { DesignSpecs, FontSpec, SpecItem } from '../types';
-import { rgbaToHex } from '../lib/utils';
+import type { FigmaNode } from './api.js';
+import type { DesignSpecs, FontSpec, SpecItem } from '../types.js';
+import { rgbaToHex } from '../lib/utils.js';
 
 type ValueMap<T> = Map<string, { value: T; nodes: { id: string; name: string }[] }>;
 

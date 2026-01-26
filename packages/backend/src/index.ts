@@ -6,26 +6,26 @@ export type {
   DriftReport, 
   CompareRequest, 
   CompareResponse 
-} from './types';
+} from './types.js';
 
 export { 
   parseFigmaUrl, 
   fetchFigmaNode, 
   fetchFigmaImage, 
   extractDesignSpecs 
-} from './figma';
+} from './figma/index.js';
 export type { 
   FigmaNode, 
   FigmaFill, 
   FigmaTextStyle 
-} from './figma';
+} from './figma/index.js';
 
 export { 
   capturePageData, 
   closeBrowser 
-} from './capture';
-export type { CaptureResult } from './capture';
+} from './capture/index.js';
+export type { CaptureResult } from './capture/index.js';
 
 export { 
   compare 
-} from './compare';
+} from './compare/index.js';
