@@ -1,5 +1,7 @@
 import { chromium, type Browser } from 'playwright';
-import type { LiveSpecs, CaptureResult } from '../types';
+import type { LiveSpecs, CaptureResult, DesignSpecs } from '../types.js';
+import { scrapeDOM } from '../figma/dom-scraper.js';
+import { matchComponent } from '../figma/component-matcher.js';
 
 export type { CaptureResult };
 
@@ -19,11 +21,14 @@ export async function capturePageData(
   selector?: string,
   delay?: number,
   headers?: Record<string, string>,
-  cookies?: string[]
+  cookies?: string[],
+  figmaSpecs?: DesignSpecs
 ): Promise<{ screenshot: Buffer; specs: LiveSpecs }> {
+  console.log(`[DEBUG] Capturing page data for ${url} (target resolution: ${width}x${height})`);
   const browser = await getBrowser();
   const context = await browser.newContext({
     extraHTTPHeaders: headers,
+    deviceScaleFactor: 2,
   });
   
   if (cookies && cookies.length > 0) {
@@ -39,25 +44,38 @@ export async function capturePageData(
 
   try {
     await page.setViewportSize({
-      width: Math.max(Math.ceil(width), 100),
-      height: Math.max(Math.ceil(height), 100),
+      width: Math.max(Math.ceil(width * 2), 1280),
+      height: Math.max(Math.ceil(height * 2), 720),
     });
 
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
 
-    // Optional delay for dynamic content (SPAs)
     if (delay && delay > 0) {
       await page.waitForTimeout(delay);
     }
 
-    try {
-      await page.waitForLoadState('networkidle', { timeout: 5000 });
-    } catch {
-      // Ignore network idle timeout
+    let clip: { x: number; y: number; width: number; height: number } | undefined;
+    let targetSelector = selector;
+
+    if (!targetSelector && figmaSpecs) {
+      const elements = await scrapeDOM(page);
+      const match = matchComponent(figmaSpecs, elements);
+      if (match) {
+        console.log(`[DEBUG] Best match found: ${match.element.tagName}.${match.element.className} at (${match.x}, ${match.y}) with confidence ${match.confidence}`);
+        if (match.confidence > 0.3) {
+          clip = {
+            x: match.x,
+            y: match.y,
+            width: match.width,
+            height: match.height
+          };
+          console.log(`[DEBUG] Applying clip: ${JSON.stringify(clip)}`);
+        }
+      }
     }
 
     const extractSpecsScript = `
-      (function(selectorArg) {
+      (function(selectorArg, clipArg) {
         const colors = new Set();
         const fonts = [];
         const spacing = new Set();
@@ -73,14 +91,12 @@ export async function capturePageData(
 
         function processElement(el) {
           const style = window.getComputedStyle(el);
-
           if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
             colors.add(rgbToHex(style.backgroundColor));
           }
           if (style.color) {
             colors.add(rgbToHex(style.color));
           }
-
           if (style.fontFamily && style.fontSize) {
             fonts.push({
               family: style.fontFamily.replace(/['"]/g, ''),
@@ -88,24 +104,23 @@ export async function capturePageData(
               weight: parseInt(style.fontWeight) || 400,
             });
           }
-
           ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'gap'].forEach(function(prop) {
             const val = parseFloat(style[prop]);
             if (val > 0) spacing.add(val);
           });
         }
 
-        let root = document;
+        let root = document.body;
         if (selectorArg) {
-          const selected = document.querySelector(selectorArg);
-          if (selected) {
-            root = selected;
-            processElement(selected);
-          }
+          root = document.querySelector(selectorArg) || document.body;
+        } else if (clipArg) {
+          // Find the element at the center of the clip area as a heuristic for the root
+          const el = document.elementFromPoint(clipArg.x + clipArg.width/2, clipArg.y + clipArg.height/2);
+          if (el) root = el;
         }
 
-        const elements = root.querySelectorAll('*');
-        elements.forEach(processElement);
+        processElement(root);
+        root.querySelectorAll('*').forEach(processElement);
 
         const seen = new Set();
         const dedupedFonts = fonts.filter(function(f) {
@@ -119,22 +134,20 @@ export async function capturePageData(
           colors: Array.from(colors),
           fonts: dedupedFonts,
           spacing: Array.from(spacing).sort(function(a, b) { return a - b; }),
-          dimensions: { width: 0, height: 0 },
+          dimensions: { width: root.clientWidth, height: root.clientHeight },
         };
-      })(${selector ? JSON.stringify(selector) : 'null'})
+      })(${targetSelector ? JSON.stringify(targetSelector) : 'null'}, ${clip ? JSON.stringify(clip) : 'null'})
     `;
 
     const specs = await page.evaluate(extractSpecsScript) as LiveSpecs;
 
     let screenshot: Buffer;
-    if (selector) {
-      try {
-        const locator = page.locator(selector).first();
-        await locator.waitFor({ state: 'visible', timeout: 5000 });
-        screenshot = await locator.screenshot({ type: 'png' });
-      } catch (error: any) {
-        throw new Error(`Failed to find or capture element with selector "${selector}": ${error.message}`);
-      }
+    if (targetSelector) {
+      const locator = page.locator(targetSelector).first();
+      await locator.waitFor({ state: 'visible', timeout: 5000 });
+      screenshot = await locator.screenshot({ type: 'png' });
+    } else if (clip) {
+      screenshot = await page.screenshot({ type: 'png', clip });
     } else {
       screenshot = await page.screenshot({ type: 'png', fullPage: false });
     }

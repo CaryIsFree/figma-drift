@@ -50,7 +50,8 @@ export async function compare(
     selector,
     delay,
     headers,
-    cookies
+    cookies,
+    designSpecs
   );
   log('Captured live page', time() - t);
 
