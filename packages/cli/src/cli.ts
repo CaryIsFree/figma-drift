@@ -2,6 +2,8 @@
 
 import 'dotenv/config';
 import { Command } from 'commander';
+import { execSync } from 'child_process';
+import { chromium } from 'playwright';
 import { compare, type DriftReport, type CompareRequest } from '@figma-drift/backend';
 
 interface CheckOptions {
@@ -93,6 +95,27 @@ program
         headers: Object.keys(headers).length > 0 ? headers : undefined,
         cookies: options.cookies,
       };
+
+      // Check and install Chromium browser if needed
+      try {
+        await chromium.launch({ headless: true });
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message.includes("Executable doesn't exist")) {
+          spinner.stop();
+          console.log('📦 Chromium browser not found. Installing automatically...');
+          try {
+            execSync('npx playwright install chromium', { stdio: 'inherit' });
+            console.log('✓ Browser installation complete');
+            spinner.start('Processing comparison...');
+          } catch (_installError) {
+            console.error('❌ Failed to install Chromium browser');
+            console.error('   Run "npx playwright install chromium" manually');
+            process.exit(1);
+          }
+        } else {
+          throw e;
+        }
+      }
 
       const report: DriftReport = await compare(request, token, (step) => {
         spinner.update(step);
