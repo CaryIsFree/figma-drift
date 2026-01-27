@@ -13,6 +13,15 @@ export interface ElementInfo {
   color: string;
 }
 
+/**
+ * Scrapes DOM elements from a page for component matching.
+ *
+ * Extracts dimensions, colors, text from all visible elements.
+ * Coordinates are in CSS pixels (independent of deviceScaleFactor).
+ *
+ * @param page - Playwright page to scrape
+ * @returns Array of element info with positions, dimensions, styles
+ */
 export async function scrapeDOM(page: Page): Promise<ElementInfo[]> {
   const script = `
     (function() {
@@ -36,12 +45,15 @@ export async function scrapeDOM(page: Page): Promise<ElementInfo[]> {
         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return;
 
         const text = el.textContent ? el.textContent.trim().slice(0, 100) : '';
-        
+
         elements.push({
           tagName: el.tagName,
           id: el.id,
           className: el.className,
           text: text,
+          // getBoundingClientRect returns CSS pixels (independent of deviceScaleFactor)
+          // Contrast with screenshot.ts which uses 2x physical pixels via DEVICE_SCALE_FACTOR
+          // Scroll offset added for absolute page coordinates
           x: rect.left + window.scrollX,
           y: rect.top + window.scrollY,
           width: rect.width,

@@ -2,11 +2,24 @@ import { chromium, type Browser } from 'playwright';
 import type { LiveSpecs, CaptureResult, DesignSpecs } from '../types.js';
 import { scrapeDOM } from '../figma/dom-scraper.js';
 import { matchComponent } from '../figma/component-matcher.js';
+import {
+  DEVICE_SCALE_FACTOR,
+  VIEWPORT_SCALE_MULTIPLIER,
+  MIN_VIEWPORT_WIDTH,
+  MIN_VIEWPORT_HEIGHT,
+  MIN_CONFIDENCE_THRESHOLD,
+  SCREENSHOT_TIMEOUT_MS,
+} from '../lib/constants.js';
 
 export type { CaptureResult };
 
 let _browser: Browser | null = null;
 
+/**
+ * Gets or creates a singleton Playwright browser instance.
+ *
+ * @returns Browser instance (reuses existing if connected)
+ */
 export async function getBrowser(): Promise<Browser> {
   if (!_browser || !_browser.isConnected()) {
     _browser = await chromium.launch();
@@ -14,6 +27,20 @@ export async function getBrowser(): Promise<Browser> {
   return _browser;
 }
 
+/**
+ * Captures screenshot and live specs from a URL.
+ * Matches Figma's 2x export scale for pixel-perfect comparisons.
+ *
+ * @param url - Live page URL to capture
+ * @param width - Target width in CSS pixels (scaled to 2x internally)
+ * @param height - Target height in CSS pixels (scaled to 2x internally)
+ * @param selector - Optional CSS selector for precise element targeting
+ * @param delay - Optional wait time for dynamic content (ms)
+ * @param headers - Optional HTTP headers for authenticated requests
+ * @param cookies - Optional cookies for authenticated sessions
+ * @param figmaSpecs - Optional Figma specs for auto-matching
+ * @returns Screenshot buffer and extracted live specs
+ */
 export async function capturePageData(
   url: string,
   width: number,
@@ -28,7 +55,7 @@ export async function capturePageData(
   const browser = await getBrowser();
   const context = await browser.newContext({
     extraHTTPHeaders: headers,
-    deviceScaleFactor: 2,
+    deviceScaleFactor: DEVICE_SCALE_FACTOR, // 2x scale matches Figma's default export
   });
   
   if (cookies && cookies.length > 0) {
@@ -44,11 +71,13 @@ export async function capturePageData(
 
   try {
     await page.setViewportSize({
-      width: Math.max(Math.ceil(width * 2), 1280),
-      height: Math.max(Math.ceil(height * 2), 720),
+      width: Math.max(Math.ceil(width * VIEWPORT_SCALE_MULTIPLIER), MIN_VIEWPORT_WIDTH),
+      height: Math.max(Math.ceil(height * VIEWPORT_SCALE_MULTIPLIER), MIN_VIEWPORT_HEIGHT),
+      // 2x viewport + 2x deviceScaleFactor ensures layout stability and prevents
+      // only top-left quarter being visible during comparison
     });
 
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'networkidle', timeout: SCREENSHOT_TIMEOUT_MS });
 
     if (delay && delay > 0) {
       await page.waitForTimeout(delay);
@@ -62,7 +91,7 @@ export async function capturePageData(
       const match = matchComponent(figmaSpecs, elements);
       if (match) {
         console.log(`[DEBUG] Best match found: ${match.element.tagName}.${match.element.className} at (${match.x}, ${match.y}) with confidence ${match.confidence}`);
-        if (match.confidence > 0.3) {
+        if (match.confidence > MIN_CONFIDENCE_THRESHOLD) { // 0.3 = 30% match is minimum acceptable
           clip = {
             x: match.x,
             y: match.y,
@@ -75,6 +104,8 @@ export async function capturePageData(
     }
 
     const extractSpecsScript = `
+      // Browser-executed script: extracts colors, fonts, spacing from live page
+      // Runs in page context via page.evaluate(), returns JSON
       (function(selectorArg, clipArg) {
         const colors = new Set();
         const fonts = [];
@@ -114,7 +145,8 @@ export async function capturePageData(
         if (selectorArg) {
           root = document.querySelector(selectorArg) || document.body;
         } else if (clipArg) {
-          // Find the element at the center of the clip area as a heuristic for the root
+          // Use center point heuristic to find root element within clip area
+          // More robust than checking top-left which may hit padding/margins
           const el = document.elementFromPoint(clipArg.x + clipArg.width/2, clipArg.y + clipArg.height/2);
           if (el) root = el;
         }
@@ -158,6 +190,11 @@ export async function capturePageData(
   }
 }
 
+/**
+ * Closes the singleton Playwright browser instance.
+ *
+ * @returns Promise that resolves when browser is closed
+ */
 export async function closeBrowser(): Promise<void> {
   if (_browser) {
     await _browser.close();
