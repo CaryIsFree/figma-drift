@@ -15,5 +15,16 @@ PROJECT_STATUS.md
 
 # Temporary/test output files (not committed)
 .sisyphus/
+outputs/
+packages/outputs/
+temp/
+temp_playwright/
 packages/cli/diff.png
 tests/
+*.png
+!test-fixtures/**/*.png
+packages/backend/debug-matcher.ts
+tasks.md
+test-page.html
+nul
+
