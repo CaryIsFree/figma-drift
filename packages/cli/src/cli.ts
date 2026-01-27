@@ -1,39 +1,8 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import { Command } from 'commander';
-
-interface FontSpec {
-  family: string;
-  size: number;
-  weight: number;
-}
-
-interface SpecItem<T> {
-  value: T;
-  nodes: { id: string; name: string }[];
-}
-
-interface DriftReport {
-  figmaUrl: string;
-  liveUrl: string;
-  timestamp: string;
-  visual: {
-    diffPercent: number;
-    diffImageBase64: string | null;
-  };
-  specs: {
-    colorDrift: SpecItem<string>[];
-    fontDrift: SpecItem<FontSpec>[];
-    spacingDrift: SpecItem<number>[];
-  };
-  passed: boolean;
-}
-
-interface CompareResponse {
-  success: boolean;
-  report?: DriftReport;
-  error?: string;
-}
+import { compare, type DriftReport, type CompareRequest } from '@figma-drift/backend';
 
 interface CheckOptions {
   figma: string;
@@ -43,7 +12,7 @@ interface CheckOptions {
   delay?: string;
   headers?: string[];
   cookies?: string[];
-  server: string;
+  token?: string;
   output?: string;
 }
 
@@ -94,11 +63,11 @@ program
   .option('--delay <ms>', 'Wait for dynamic content (milliseconds)')
   .option('--header <string>', 'HTTP header (can be used multiple times)', [])
   .option('--cookie <string>', 'HTTP cookie (can be used multiple times)', [])
-  .option('--server <url>', 'Backend server URL', 'http://localhost:3000')
+  .option('--token <string>', 'Figma access token (or set FIGMA_ACCESS_TOKEN in .env)')
   .option('--output <path>', 'Output path for diff image')
   .action(async (options: CheckOptions): Promise<void> => {
     try {
-      spinner.start('Connecting to backend...');
+      spinner.start('Processing comparison...');
 
       const headers: Record<string, string> = (options.headers || []).reduce((acc, h) => {
         const [key, ...rest] = h.split(':');
@@ -107,33 +76,29 @@ program
         }
         return acc;
       }, {} as Record<string, string>);
-    
-      const response = await fetch(`${options.server}/api/compare`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({
-          figmaUrl: options.figma,
-          liveUrl: options.live,
-          threshold: parseFloat(options.threshold),
-          selector: options.selector,
-          delay: options.delay ? parseInt(options.delay) : undefined,
-          headers: Object.keys(headers).length > 0 ? headers : undefined,
-          cookies: options.cookies,
-        }),
-      });
 
-      spinner.update('Processing comparison...');
-
-      const data: CompareResponse = await response.json();
-
-      spinner.stop('✓ Comparison complete');
-
-      if (!data.success || !data.report) {
-        console.error('❌ Error:', data.error ?? 'Unknown error');
+      const token = options.token || process.env.FIGMA_ACCESS_TOKEN;
+      if (!token) {
+        console.error('❌ Error: Figma access token is required');
+        console.error('   Provide --token flag or set FIGMA_ACCESS_TOKEN in .env');
         process.exit(1);
       }
 
-      const report: DriftReport = data.report;
+      const request: CompareRequest = {
+        figmaUrl: options.figma,
+        liveUrl: options.live,
+        threshold: parseFloat(options.threshold),
+        selector: options.selector,
+        delay: options.delay ? parseInt(options.delay) : undefined,
+        headers: Object.keys(headers).length > 0 ? headers : undefined,
+        cookies: options.cookies,
+      };
+
+      const report: DriftReport = await compare(request, token, (step) => {
+        spinner.update(step);
+      });
+
+      spinner.stop('✓ Comparison complete');
 
       console.log('\n📊 Drift Report');
       console.log('================');
