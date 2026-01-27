@@ -2,9 +2,56 @@
 
 > Detect visual drift between Figma designs and live implementations.
 
+## Visual Comparison Demo
+
+The tool compares your Figma design against the live implementation to detect visual and technical discrepancies.
+
+### 1. Figma Design
+The source of truth. A high-fidelity design from Figma.
+![Figma Design](docs/images/figma-design.png)
+
+### 2. Live Implementation
+The actual web page as rendered in a browser.
+![Live Implementation](docs/images/test-site.png)
+
+### 3. Drift Detection (Result)
+A pixel-perfect comparison highlighting differences in red. The tool also detects missing colors, font mismatches, and spacing variations.
+![Drift Detection](docs/images/pricing-diff.png)
+
 ## Quick Start
 
-### Prerequisites
+### Standalone Usage (Recommended)
+
+**Zero-Configuration:** Just run the CLI - it will automatically download Playwright browsers on first run.
+
+```bash
+# Create a .env file in your current directory
+echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
+
+# Run comparison directly via npx
+npx figma-drift check \
+  --figma "https://www.figma.com/design/5a6XqJkOHZVNZZfpwBtqe6/LMAO?node-id=2-1424" \
+  --live "https://your-staging-site.com/page" \
+  --output diff.png
+```
+
+**Configuration Priority:**
+1. CLI flags (e.g., `--token`)
+2. Environment variables (e.g., `export FIGMA_ACCESS_TOKEN=...`)
+3. `.env` file in current directory
+
+**Exit Codes for CI/CD:**
+- `0` - PASSED (no significant drift detected)
+- `1` - DRIFT DETECTED (visual or specification mismatch)
+- `2` - ERROR (API failure, invalid URL, timeout)
+
+---
+
+### Full System Setup (Development)
+
+Use this setup when developing or running the backend server.
+
+#### Prerequisites
 
 - **Node.js 20+** (required for Playwright compatibility)
 - **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings)
@@ -41,7 +88,7 @@ You need **3 terminals** to run the full system:
 #### Terminal 1: Serve Test Fixture (optional, for testing)
 
 ```bash
-bun run serve:fixture
+npm run serve:fixture
 # Serves test-fixtures/ on http://localhost:5555
 ```
 
@@ -49,20 +96,20 @@ bun run serve:fixture
 
 ```bash
 cd packages/backend
-npx tsx src/server.ts
+npm run dev
 # Or with watch mode:
-npx tsx watch src/server.ts
+# npm run dev (already includes watch in scripts)
 
 # Server will start on http://localhost:3000
 ```
 
-> **Note:** Backend uses Node.js via `tsx` (not Bun) due to Playwright compatibility on Windows.
+> **Note:** Backend uses Node.js via `tsx` for Playwright compatibility on Windows.
 
 #### Terminal 3: Run CLI Checks
 
 ```bash
 cd packages/cli
-bun run dev check \
+npm run dev -- check \
    --figma "https://www.figma.com/design/YOUR_FILE/Name?node-id=1-2" \
    --live "https://your-staging-site.com/page" \
    --output diff.png
@@ -73,19 +120,20 @@ bun run dev check \
 - `--live <url>` - Live page URL
 
 **Optional Arguments:**
+- `--token <string>` - Figma access token (overrides .env and environment variables)
 - `--threshold <number>` - Diff threshold 0-1 (default: 0.1)
 - `--selector <selector>` - CSS selector to target specific element
 - `--delay <ms>` - Wait for dynamic content (milliseconds)
 - `--header <string>` - HTTP header (can be used multiple times)
 - `--cookie <string>` - HTTP cookie (can be used multiple times)
-- `--server <url>` - Backend server URL (default: http://localhost:3000)
 - `--output <path>` - Save diff image to file
 
 #### Example Output
 
 ```
-Connecting to backend...
-Comparison complete
+Connecting to Figma...
+📦 Browser installation complete
+Comparing designs...
 
 Spec Diff
    Colors missing: #1e1e1e, #e3e3e3
@@ -94,14 +142,19 @@ Spec Diff
 
 Diff image saved to: diff.png
 
-Figma:
+Visual diff: 10.10%
 ```
 
 **Exit Codes:**
 - `0` - PASSED (no significant drift)
-- `1` - FAILED (drift detected) or error occurred
+- `1` - DRIFT DETECTED (visual or specification mismatch)
+- `2` - ERROR (API failure, invalid URL, timeout)
 
-## Figma URL Formats
+---
+
+## Full System Setup (Development)
+
+For development and running the backend server, use this setup.
 
 The tool supports all Figma URL formats:
 - `figma.com/design/...` (new format)
@@ -175,6 +228,12 @@ Health check endpoint.
 
 ### Environment Variables
 
+**For Standandalone CLI (.env file in current directory):**
+| Variable | Description | Required |
+|----------|-------------|---------|
+| `FIGMA_ACCESS_TOKEN` | Figma Personal Access Token | Yes |
+
+**For Development (packages/backend/.env):**
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `FIGMA_ACCESS_TOKEN` | Figma Personal Access Token | Required |
@@ -196,7 +255,7 @@ Controls sensitivity of pixel diffing:
 | Screenshots | Playwright | Browser automation |
 | Diffing | pixelmatch | Pixel comparison |
 | CLI | Commander.js | Argument parsing |
-| Package Manager | Bun | Fast dependency management |
+| Package Manager | npm | Fast dependency management |
 | Runtime | Node.js via tsx | Playwright compatibility |
 | Language | TypeScript (strict) | Type safety |
 
@@ -204,7 +263,7 @@ Controls sensitivity of pixel diffing:
 
 - **Single-node comparison**: One Figma frame at a time
 - **Rate limits**: Figma free tier = 6 API requests/month (get Dev seat for 10/min)
-- **Windows**: Backend requires Node.js (Bun + Playwright incompatible)
+- **Windows**: Backend requires Node.js (Playwright compatibility)
 - **Dimension mismatch**: Images are cropped to smallest common size
 
 ## Troubleshooting
@@ -230,10 +289,17 @@ Your Figma account hit rate limits:
 
 ### "launch: Timeout exceeded" (Playwright)
 
-- On Windows, use Node.js (`npx tsx`) instead of Bun
-- First run downloads Chromium (~150MB), may take a minute
+First run downloads Chromium (~150MB), may take a minute. Just wait.
 
-### "Image sizes do not match"
+### "CLI: command not found"
+
+After running `npm link`, use `figma-drift` command directly:
+```bash
+npm link --workspace=@figma-drift/cli
+figma-drift check --figma "..." --live "..."
+```
+
+### "figma-drift: command not found"
 
 Fixed in latest version. If you see this, pull latest code.
 
