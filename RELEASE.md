@@ -12,6 +12,14 @@ Run this command in your terminal to log in to your npm account:
 npm login
 ```
 
+### 2.1 Handling 2FA (Important)
+If you have Two-Factor Authentication (2FA) enabled on your npm account (which is now required for most packages), the `npm publish` command will:
+1.  **Prompt for an OTP**: After you run the command, npm will ask for your one-time password from your authenticator app.
+2.  **Web-based Login**: In modern npm versions, it might open a browser window to verify your identity.
+
+**If you get a 403 Forbidden error:** 
+Ensure your token is fresh by running `npm logout` and then `npm login` again.
+
 ## 3. The Release Process
 Every time you want to release a new version:
 
