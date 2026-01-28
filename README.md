@@ -401,8 +401,8 @@ Figma Drift is currently in **Closed Beta**. We are actively looking for technic
 
 ## Contact
 
-- **GitHub**: [XeroS/figma-drift](https://github.com/XeroS/figma-drift)
-- **Issues**: [GitHub Issues](https://github.com/XeroS/figma-drift/issues)
+- **GitHub**: [CaryIsFree/figma-drift](https://github.com/CaryIsFree/figma-drift)
+- **Issues**: [GitHub Issues](https://github.com/CaryIsFree/figma-drift/issues)
 
 ## License
 
