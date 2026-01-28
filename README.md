@@ -47,6 +47,30 @@ npx figma-drift check \
 
 ---
 
+### Organized Results
+
+Every time you run a check, `figma-drift` automatically organizes the results into a timestamped directory structure in your project's root.
+
+**Structure:**
+```text
+.figma-drift/
+└── 2026-01-28_15-30-45-123/
+    └── outputs/
+        ├── figma.png      # Original Figma design screenshot
+        ├── live.png       # Original live implementation screenshot
+        ├── diff.png       # Visual difference (red highlights)
+        └── report.json    # Machine-readable metadata and spec diff
+```
+
+**Pro-tip:** Add `.figma-drift/` to your `.gitignore` to keep your repository clean.
+```bash
+echo ".figma-drift/" >> .gitignore
+```
+
+**Result Retention:** The tool automatically keeps the most recent **50 runs** and rotates out older results to prevent disk bloat.
+
+---
+
 ### Full System Setup (Development)
 
 Use this setup when developing or running the backend server.
@@ -140,6 +164,7 @@ Spec Diff
    Fonts missing: Inter 24px
    Spacing missing: 8px, 12px
 
+📂 Results saved to: .figma-drift/2026-01-28_15-30-45-123/
 Diff image saved to: diff.png
 
 Visual diff: 10.10%
@@ -195,19 +220,21 @@ Compare a Figma design to a live implementation.
   "report": {
     "figmaUrl": "...",
     "liveUrl": "...",
-    "timestamp": "2026-01-22T...",
+    "timestamp": "2026-01-28T...",
     "visual": {
       "diffPercent": 9.57,
-      "diffImageBase64": "iVBORw0KGgo..."
+      "diffPixels": 124500,
+      "totalPixels": 1200000,
+      "diffImageBase64": "iVBORw0KGgo...",
+      "figmaImageBase64": "...",
+      "liveImageBase64": "..."
     },
     "specs": {
-      "specs": {
-        "colorDrift": [{ "value": "#1e1e1e", "nodes": [...] }],
-        "fontDrift": [{ "value": { "family": "Inter", "size": 24, "weight": 400 }, "nodes": [...] }],
-        "spacingDrift": [{ "value": 8, "nodes": [...] }]
-      },
-      "passed": false
-    }
+      "colorDrift": [...],
+      "fontDrift": [...],
+      "spacingDrift": [...]
+    },
+    "passed": false
   }
 }
 ```
