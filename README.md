@@ -4,12 +4,45 @@
 
 ## Quick Start
 
-### Standalone Usage (Recommended)
+### Installation Options
+
+Figma Drift can be used in three ways, depending on your workflow:
+
+#### 1. On-the-fly (Recommended for Testing)
+Run directly without installing. This is the fastest way to verify a design.
+```bash
+npx figma-drift check \
+  --figma "<YOUR_FIGMA_FRAME_URL>" \
+  --live "<YOUR_LIVE_SITE_URL>"
+```
+
+#### 2. Global Install
+Install globally for access to the `figma-drift` command from any directory.
+```bash
+npm install -g figma-drift
+figma-drift check --figma "..." --live "..."
+```
+
+#### 3. Local Project Dependency
+Add it to your project's `devDependencies` for use in CI/CD or shared scripts.
+```bash
+npm install --save-dev figma-drift
+npx figma-drift check --figma "..." --live "..."
+```
+
+---
+
+## 30-Second Setup
 
 **Zero-Configuration:** Just run the CLI - it will automatically download Playwright browsers on first run.
 
-**1. Setup Environment**
-Choose the command for your platform to create a `.env` file:
+### 1. Configure Figma Access
+The tool requires a [Figma Personal Access Token](https://www.figma.com/settings). Create a `.env` file in your project root:
+
+**macOS / Linux**:
+```bash
+echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
+```
 
 **Windows (PowerShell)**:
 ```powershell
@@ -21,13 +54,7 @@ Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
 echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
 ```
 
-**macOS / Linux**:
-```bash
-echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
-```
-
-**2. Run Comparison**
-Run comparison directly via npx:
+### 2. Run your first comparison
 ```bash
 npx figma-drift check \
   --figma "<YOUR_FIGMA_FRAME_URL>" \
@@ -91,7 +118,7 @@ echo ".figma-drift/" >> .gitignore
 
 ### Full System Setup (Development)
 
-Use this setup when developing or running the backend server.
+Use this setup when developing the core engine or the CLI client.
 
 #### Prerequisites
 
@@ -108,8 +135,8 @@ cd figma-drift
 # Install dependencies
 npm install
 
-# Install Playwright browsers (first time only)
-npx playwright install chromium
+# Build all packages
+npm run build
 ```
 
 ### Configuration
@@ -125,7 +152,7 @@ PORT=3000
 
 ### Usage
 
-You need **3 terminals** to run the full system:
+You need **3 terminals** to run the full system during development:
 
 #### Terminal 1: Serve Test Fixture (optional, for testing)
 
@@ -134,27 +161,23 @@ npm run serve:fixture
 # Serves test-fixtures/ on http://localhost:5555
 ```
 
-#### Terminal 2: Start Backend
+#### Terminal 2: Start Core Engine (Backend)
 
 ```bash
 cd packages/backend
 npm run dev
-# Or with watch mode:
-# npm run dev (already includes watch in scripts)
-
 # Server will start on http://localhost:3000
 ```
 
 > **Note:** Backend uses Node.js via `tsx` for Playwright compatibility on Windows.
 
-#### Terminal 3: Run CLI Checks
+#### Terminal 3: Run CLI Checks (Direct from source)
 
 ```bash
 cd packages/cli
 npm run dev -- check \
    --figma "<YOUR_FIGMA_FRAME_URL>" \
-   --live "<YOUR_LIVE_SITE_URL>" \
-   --output diff.png
+   --live "<YOUR_LIVE_SITE_URL>"
 ```
 
 **Required Arguments:**
@@ -365,6 +388,16 @@ figma-drift check --figma "..." --live "..."
 ### "figma-drift: command not found"
 
 Fixed in latest version. If you see this, pull latest code.
+
+## Closed Beta & Feedback
+
+Figma Drift is currently in **Closed Beta**. We are actively looking for technical validation from developers and designers.
+
+- **Found a bug?** Please [open an issue](https://github.com/XeroS/figma-drift/issues) using our bug report template.
+- **Have feedback?** We'd love to hear your thoughts! Please fill out our [Technical Feedback Survey](FEEDBACK.md).
+- **Want to contribute?** Please read our [Contributing Guidelines](CONTRIBUTING.md) and Beta Agreement.
+
+---
 
 ## Contact
 
