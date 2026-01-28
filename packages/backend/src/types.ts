@@ -37,15 +37,19 @@ export interface DriftReport {
   liveUrl: string;
   timestamp: string;
   visual: {
-    diffPercent: number;              // 0-100
-    diffImageBase64: string | null;   // PNG as base64
+    diffPercent: number;
+    diffPixels: number;
+    totalPixels: number;
+    diffImageBase64: string | null;
+    figmaImageBase64?: string;
+    liveImageBase64?: string;
   };
   specs: {
-    colorDrift: SpecItem<string>[];   // Colors in Figma but not in live (with source info)
-    fontDrift: SpecItem<FontSpec>[];  // Fonts that differ
-    spacingDrift: SpecItem<number>[]; // Spacing values that differ
+    colorDrift: SpecItem<string>[];
+    fontDrift: SpecItem<FontSpec>[];
+    spacingDrift: SpecItem<number>[];
   };
-  passed: boolean;                    // true if diffPercent < threshold
+  passed: boolean;
 }
 
 export interface CompareRequest {

@@ -3,16 +3,17 @@ import { extractDesignSpecs } from '../figma/extract.js';
 import { capturePageData } from '../capture/screenshot.js';
 import { compareImages } from './visual.js';
 import { compareSpecs } from './specs.js';
+import { PIXELMATCH_THRESHOLD } from '../lib/constants.js';
 import type { CompareRequest, DriftReport } from '../types.js';
 
-type ProgressCallback = (step: string, ms?: number) => void;
+type ProgressCallback = (_step: string, _ms?: number) => void;
 
 export async function compare(
   request: CompareRequest,
   figmaToken: string,
   onProgress?: ProgressCallback
 ): Promise<DriftReport> {
-  const { figmaUrl, liveUrl, selector, delay, headers, cookies, threshold = 0.1 } = request;
+  const { figmaUrl, liveUrl, selector, delay, headers, cookies, threshold = PIXELMATCH_THRESHOLD } = request;
   const log = (step: string, ms?: number) => {
     onProgress?.(ms ? `${step} (${ms}ms)` : step);
   };
@@ -69,9 +70,13 @@ export async function compare(
     timestamp: new Date().toISOString(),
     visual: {
       diffPercent: visualDiff.diffPercent,
+      diffPixels: visualDiff.matchedPixels,
+      totalPixels: visualDiff.totalPixels,
       diffImageBase64: visualDiff.diffImageBuffer
         ? visualDiff.diffImageBuffer.toString('base64')
         : null,
+      figmaImageBase64: figmaImageBuffer ? figmaImageBuffer.toString('base64') : undefined,
+      liveImageBase64: liveScreenshot ? liveScreenshot.toString('base64') : undefined,
     },
     specs: {
       colorDrift: specDiff.colorDrift,
