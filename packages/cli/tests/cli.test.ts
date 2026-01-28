@@ -1,20 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { spawn } from 'child_process';
 import { join } from 'path';
-
-/**
- * CLI tests for the figma-drift check command.
- * 
- * Tests the CLI interface, argument parsing, and output formatting.
- * These tests spawn the CLI as a child process to test the actual CLI behavior.
- */
 
 const CLI_PATH = join(__dirname, '../src/cli.ts');
 
 // Helper to run CLI command and capture output
 function runCli(args: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   return new Promise((resolve) => {
-    const proc = spawn('bun', ['run', CLI_PATH, ...args], {
+    const proc = spawn('npm', ['run', 'dev', '--', ...args], {
       env: { ...process.env },
       shell: true,
     });

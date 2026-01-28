@@ -240,3 +240,17 @@ export const TEXT_COLOR_MATCH_SCORE = 1.0;
  * @constant
  */
 export const TEXT_PRESENCE_SCORE = 1.0;
+
+/**
+ * Default threshold for pixel-level visual comparison (pixelmatch).
+ *
+ * WHY 0.1?
+ * - Standard threshold for pixelmatch to ignore sub-pixel anti-aliasing.
+ * - Values between 0 (strict) and 1 (permissive).
+ * - 0.1 is the industry standard for "visibly identical" but technically different pixels.
+ * - Used to differentiate between compression artifacts and actual design drift.
+ *
+ * @constant
+ */
+export const PIXELMATCH_THRESHOLD = 0.1;
+

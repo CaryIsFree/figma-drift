@@ -3,7 +3,7 @@ dist/
 .env
 *.log
 .DS_Store
-bun.lock
+package-lock.json
 
 # Internal spec/docs (local only, not committed)
 AGENTS.md
@@ -12,6 +12,9 @@ EVALUATION.md
 IMPLEMENTATION.md
 CHANGELOG.md
 PROJECT_STATUS.md
+OUTREACH_GUIDE.md
+phase-0-complete
+
 
 # Temporary/test output files (not committed)
 .sisyphus/
@@ -21,10 +24,9 @@ temp/
 temp_playwright/
 packages/cli/diff.png
 tests/
-*.png
+
 !test-fixtures/**/*.png
 packages/backend/debug-matcher.ts
 tasks.md
 test-page.html
 nul
-

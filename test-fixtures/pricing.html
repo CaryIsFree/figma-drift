@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Table</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #e3e3e3;
+            --card-featured-bg: #1a1a1a;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-white: #ffffff;
+            --button-bg: #1a1a1a;
+            --button-text: #ffffff;
+            --button-featured-bg: #ffffff;
+            --button-featured-text: #1a1a1a;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 1200px;
+            height: 603px;
+            padding: 64px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Figma shows Gap 48 between cards, but also a navigation at top */
+        }
+
+        .navigation {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 48px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .navigation span.active {
+            color: var(--text-primary);
+        }
+
+        .cards-grid {
+            display: flex;
+            gap: 48px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card {
+            flex: 1;
+            max-width: 350px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: var(--card-bg);
+            transition: transform 0.2s;
+        }
+
+        .card.featured {
+            background-color: var(--card-featured-bg);
+            border-color: var(--card-featured-bg);
+            color: var(--text-white);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .card-price {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .card-price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .card.featured .card-price span {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 40px 0;
+            text-align: left;
+            width: 100%;
+        }
+
+        .card-features li {
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-features li::before {
+            content: "•";
+            margin-right: 8px;
+        }
+
+        .card-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: auto;
+        }
+
+        .card.featured .card-button {
+            background-color: var(--button-featured-bg);
+            color: var(--button-featured-text);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <span class="active">Monthly</span>
+            <span>Yearly</span>
+            <span>Link</span>
+        </div>
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title">Title</div>
+                <div class="card-price">$50<span> / mo</span></div>
+                <ul class="card-features">
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                </ul>
+                <button class="card-button">Button</button>
+            </div>
+
+            <div class="card featured">
+                <div class="card-title">Title</div>
+                <div class="card-price">$50<span> / mo</span></div>
+                <ul class="card-features">
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                </ul>
+                <button class="card-button">Button</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Title</div>
+                <div class="card-price">$50<span> / mo</span></div>
+                <ul class="card-features">
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                    <li>List item</li>
+                </ul>
+                <button class="card-button">Button</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

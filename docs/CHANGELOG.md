@@ -3,6 +3,28 @@ All notable changes to Figma Drift project.
 
 ---
 
+## 2026-01-27
+
+### Changed
+- **Omitted Bun**: Fully removed Bun as a dependency from the project.
+  - Updated all documentation (README.md, PROJECT_STATUS.md) to use npm/Node.js commands.
+  - Migrated CLI and Backend tests from `bun:test` to `vitest`.
+  - Updated test runner scripts in `package.json`.
+  - Updated ESLint 9 configuration to include all packages.
+  - Removed Bun-specific lockfile from `.gitignore`.
+- **Added Pricing Test**: Created a custom pricing page fixture to verify generalizability of drift detection.
+- **Final Codebase Cleanup**:
+  - Removed root `tasks.md`, `test-page.html`, and `tests/` directory (redundant).
+  - Moved demonstration images to `docs/images/`.
+  - Resolved all remaining lint warnings in backend core.
+  - Enhanced README with a visual comparison demo.
+
+### Added
+- `test-fixtures/pricing.html`: Custom implementation of the Figma pricing design.
+- `docs/images/`: Storage for demonstration and documentation screenshots.
+
+---
+
 ## 2026-01-24
 
 ### Fixed

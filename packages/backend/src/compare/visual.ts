@@ -1,5 +1,6 @@
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
+import { PIXELMATCH_THRESHOLD } from '../lib/constants.js';
 
 export interface VisualDiffResult {
   diffPercent: number;
@@ -23,7 +24,7 @@ const PADDING = 8;
 export async function compareImages(
   img1Buffer: Buffer,
   img2Buffer: Buffer,
-  threshold: number = 0.1
+  threshold: number = PIXELMATCH_THRESHOLD
 ): Promise<VisualDiffResult> {
   const img1 = PNG.sync.read(img1Buffer);
   const img2 = PNG.sync.read(img2Buffer);
