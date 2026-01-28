@@ -1,4 +1,4 @@
-# figma-drift
+# Figma Drift
 
 > Detect visual drift between Figma designs and live implementations.
 
