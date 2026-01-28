@@ -123,6 +123,7 @@ program
       });
 
       const timestamp = FileManager.generateTimestamp();
+      await FileManager.rotateResults(50);
       await FileManager.saveResults(timestamp, report);
 
       spinner.stop('✓ Comparison complete');

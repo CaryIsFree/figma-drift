@@ -64,3 +64,29 @@ export async function saveResults(
     JSON.stringify(reportData, null, 2)
   );
 }
+
+const TIMESTAMP_REGEX = /^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}-\d{3}$/;
+
+export async function rotateResults(maxResults: number = 50): Promise<void> {
+  const baseDir = path.join(process.cwd(), '.figma-drift');
+
+  try {
+    const entries = await fs.readdir(baseDir, { withFileTypes: true });
+
+    // Filter for directories matching our timestamp pattern: YYYY-MM-DD_HH-mm-ss-SSS
+    const results = entries
+      .filter(entry => entry.isDirectory() && TIMESTAMP_REGEX.test(entry.name))
+      .map(entry => entry.name)
+      .sort(); // Sorting strings works for our ISO-like timestamp
+
+    if (results.length >= maxResults) {
+      const toDelete = results.slice(0, results.length - maxResults + 1);
+      for (const folder of toDelete) {
+        await fs.rm(path.join(baseDir, folder), { recursive: true, force: true });
+      }
+    }
+  } catch (error) {
+    // If directory doesn't exist, nothing to rotate
+    if ((error as { code?: string }).code !== 'ENOENT') throw error;
+  }
+}
