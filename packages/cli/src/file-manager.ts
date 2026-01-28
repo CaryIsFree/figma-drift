@@ -1,4 +1,4 @@
-import type { DriftReport } from '@figma-drift/backend';
+import type { DriftReport } from 'figma-drift-core';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 

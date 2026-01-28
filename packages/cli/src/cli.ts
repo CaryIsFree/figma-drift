@@ -4,7 +4,7 @@ import 'dotenv/config';
 import { Command } from 'commander';
 import { execSync } from 'child_process';
 import { chromium } from 'playwright';
-import { compare, type DriftReport, type CompareRequest } from '@figma-drift/backend';
+import { compare, type DriftReport, type CompareRequest } from 'figma-drift-core';
 import * as FileManager from './file-manager.js';
 
 interface CheckOptions {

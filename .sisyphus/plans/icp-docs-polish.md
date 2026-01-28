@@ -50,19 +50,10 @@ Transform the repository from a "Personal Project" into a "Tester-Ready Beta" by
 - `.github/ISSUE_TEMPLATE/*.md`: New templates for structured bug reports.
 
 ### Definition of Done
-- [ ] No mention of $20/mo or payment validation in Phase 1C documentation.
-- [ ] README shows 30-Second Test immediately after the tagline.
-- [ ] Windows PowerShell setup command uses `Set-Content`.
-- [ ] `CONTRIBUTING.md` clearly states PRs are not accepted during beta.
-
-### Must Have
-- Platform-specific command blocks (Windows vs macOS/Linux).
-- Clear mapping of technical terms for non-technical testers.
-- Structured feedback instructions.
-
-### Must NOT Have (Guardrails)
-- NO pricing comparisons in the README.
-- NO complex setup steps in the "30-Second Test".
+- [x] No mention of $20/mo or payment validation in Phase 1C documentation.
+- [x] README shows 30-Second Test immediately after the tagline.
+- [x] Windows PowerShell setup command uses `Set-Content`.
+- [x] `CONTRIBUTING.md` clearly states PRs are not accepted during beta.
 
 ---
 
@@ -115,7 +106,8 @@ grep -iE "20/mo|15/mo|pay" SPEC.md README.md docs/PROJECT_STATUS.md
 ```
 
 ### Final Checklist
-- [ ] "30-Second Test" is the first instructional section.
-- [ ] Windows PowerShell command is correct.
-- [ ] No pricing mentioned for testers.
-- [ ] All feedback loops (Issues, FEEDBACK.md) are clearly linked.
+- [x] "30-Second Test" is the first instructional section.
+- [x] Windows PowerShell command is correct.
+- [x] No pricing mentioned for testers.
+- [x] All feedback loops (Issues, FEEDBACK.md) are clearly linked.
+

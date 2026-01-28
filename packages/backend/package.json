@@ -1,5 +1,5 @@
 {
-  "name": "@figma-drift/backend",
+  "name": "figma-drift-core",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",

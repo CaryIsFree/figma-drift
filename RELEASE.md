@@ -34,8 +34,8 @@ Decide on your next version number (e.g., `0.1.1`). Update the `version` field i
 1. `packages/backend/package.json`
 2. `packages/cli/package.json`
 
-### Step C: Publish the Backend
-The backend must be published first (or simultaneously) because the CLI depends on it.
+### Step C: Publish the Core Engine
+The core must be published first (or simultaneously) because the CLI depends on it.
 ```bash
 cd packages/backend
 npm publish --access public
