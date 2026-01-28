@@ -234,7 +234,7 @@
 
 ### Figma API
 - **Rate limits discovered:** Free tier = 6 requests/month per endpoint
-- **Solution:** Requires Dev seat ($15/mo) for reasonable testing
+- **Solution:** Requires Figma Professional/Dev tier for increased limits or wait for monthly reset.
 
 ---
 

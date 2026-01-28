@@ -15,4 +15,10 @@ While we aren't accepting code, your feedback is invaluable! If you are part of 
 1.  **Reporting Bugs**: If you encounter a crash, incorrect diff, or setup issue, please use the [Bug Report template](https://github.com/XeroS/figma-drift/issues/new?template=bug_report.md).
 2.  **Submitting Validation Reports**: If the tool worked (or failed) for your specific use case, please let us know via the [Validation Report template](https://github.com/XeroS/figma-drift/issues/new?template=validation_report.md).
 
+### ⚖️ Ownership & Compensation
+By providing feedback, reporting bugs, or suggesting features, you agree that:
+- You are doing so as a **volunteer** and expect no financial compensation.
+- The founder/owner of Figma Drift retains **100% ownership** of all ideas, code, and intellectual property resulting from this feedback.
+- Your feedback is provided under the terms of the "Proprietary - All Rights Reserved" license found in the `README.md`.
+
 Structured feedback helps us move faster toward a public MVP. Thank you for being part of the journey!

@@ -30,8 +30,8 @@ echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
 Run comparison directly via npx:
 ```bash
 npx figma-drift check \
-  --figma "https://www.figma.com/design/5a6XqJkOHZVNZZfpwBtqe6/LMAO?node-id=2-1424" \
-  --live "https://your-staging-site.com/page" \
+  --figma "<YOUR_FIGMA_FRAME_URL>" \
+  --live "<YOUR_LIVE_SITE_URL>" \
   --output diff.png
 ```
 
@@ -152,8 +152,8 @@ npm run dev
 ```bash
 cd packages/cli
 npm run dev -- check \
-   --figma "https://www.figma.com/design/YOUR_FILE/Name?node-id=1-2" \
-   --live "https://your-staging-site.com/page" \
+   --figma "<YOUR_FIGMA_FRAME_URL>" \
+   --live "<YOUR_LIVE_SITE_URL>" \
    --output diff.png
 ```
 
@@ -220,8 +220,8 @@ Compare a Figma design to a live implementation.
 
 ```json
 {
-  "figmaUrl": "https://www.figma.com/design/XXX/Name?node-id=YYY",
-  "liveUrl": "https://example.com/page",
+  "figmaUrl": "<YOUR_FIGMA_FRAME_URL>",
+  "liveUrl": "<YOUR_LIVE_SITE_URL>",
   "threshold": 0.1,
   "selector": ".my-component",
   "delay": 1000,
@@ -363,4 +363,6 @@ Fixed in latest version. If you see this, pull latest code.
 
 ## License
 
-MIT
+**Proprietary – All Rights Reserved**
+
+Figma Drift is currently in a closed beta phase. The source code is available for technical review and testing purposes only. You may not copy, modify, distribute, or use this software for commercial purposes without explicit written permission from the owner.
