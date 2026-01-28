@@ -2,33 +2,33 @@
 
 > Detect visual drift between Figma designs and live implementations.
 
-## Visual Comparison Demo
-
-The tool compares your Figma design against the live implementation to detect visual and technical discrepancies.
-
-### 1. Figma Design
-The source of truth. A high-fidelity design from Figma.
-![Figma Design](docs/images/figma-design.png)
-
-### 2. Live Implementation
-The actual web page as rendered in a browser.
-![Live Implementation](docs/images/test-site.png)
-
-### 3. Drift Detection (Result)
-A pixel-perfect comparison highlighting differences in red. The tool also detects missing colors, font mismatches, and spacing variations.
-![Drift Detection](docs/images/pricing-diff.png)
-
 ## Quick Start
 
 ### Standalone Usage (Recommended)
 
 **Zero-Configuration:** Just run the CLI - it will automatically download Playwright browsers on first run.
 
-```bash
-# Create a .env file in your current directory
-echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
+**1. Setup Environment**
+Choose the command for your platform to create a `.env` file:
 
-# Run comparison directly via npx
+**Windows (PowerShell)**:
+```powershell
+Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
+```
+
+**Windows (CMD)**:
+```cmd
+echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
+```
+
+**macOS / Linux**:
+```bash
+echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
+```
+
+**2. Run Comparison**
+Run comparison directly via npx:
+```bash
 npx figma-drift check \
   --figma "https://www.figma.com/design/5a6XqJkOHZVNZZfpwBtqe6/LMAO?node-id=2-1424" \
   --live "https://your-staging-site.com/page" \
@@ -44,6 +44,24 @@ npx figma-drift check \
 - `0` - PASSED (no significant drift detected)
 - `1` - DRIFT DETECTED (visual or specification mismatch)
 - `2` - ERROR (API failure, invalid URL, timeout)
+
+---
+
+## Visual Comparison Demo
+
+The tool compares your Figma design against the live implementation to detect visual and technical discrepancies.
+
+### 1. Figma Design
+The source of truth. A high-fidelity design from Figma.
+![Figma Design](docs/images/figma-design.png)
+
+### 2. Live Implementation
+The actual web page as rendered in a browser.
+![Live Implementation](docs/images/test-site.png)
+
+### 3. Drift Detection (Result)
+A pixel-perfect comparison highlighting differences in red. The tool also detects missing colors, font mismatches, and spacing variations.
+![Drift Detection](docs/images/pricing-diff.png)
 
 ---
 
@@ -286,10 +304,18 @@ Controls sensitivity of pixel diffing:
 | Runtime | Node.js via tsx | Playwright compatibility |
 | Language | TypeScript (strict) | Type safety |
 
+## Tester Guide: Jargon vs. Meaning
+
+| Technical Term | Designer Term | What it does |
+|----------------|---------------|--------------|
+| `node-id` | **Frame Link** | Right-click any frame in Figma > Copy link. |
+| `threshold` | **Strictness** | How picky the tool is. (0.1 = Standard, 0.05 = Ultra picky). |
+| `selector` | **Target Component** | Focus comparison on one part (e.g., `.header`). |
+
 ## Known Limitations
 
 - **Single-node comparison**: One Figma frame at a time
-- **Rate limits**: Figma free tier = 6 API requests/month (get Dev seat for 10/min)
+- **Rate limits**: Figma free tier = 6 API requests/month (requires Figma Professional/Dev tier for increased limits)
 - **Windows**: Backend requires Node.js (Playwright compatibility)
 - **Dimension mismatch**: Images are cropped to smallest common size
 
@@ -301,7 +327,7 @@ Your Figma account hit rate limits:
 - **Free tier**: 6 requests/month per endpoint
 - **Dev/Full seat**: 10 requests/minute
 
-**Solution:** Upgrade to Dev seat ($15/mo) or wait for monthly reset.
+**Solution:** Rate limit exceeded—requires Figma Professional/Dev tier for increased limits or wait for monthly reset.
 
 ### "Figma API error: 403 Forbidden"
 

@@ -258,8 +258,19 @@
 
 1. [ ] Find 2-3 design teams for testing
 2. [ ] Run tool on THEIR Figma + staging
-3. [ ] Collect feedback: "Would you pay $20/mo?"
-4. [ ] Document friction points
+3. [ ] Collect technical feedback and performance data
+4. [ ] Document friction points and edge cases
+
+---
+
+## External Validation Counter
+
+| Metric | Count |
+|--------|-------|
+| Attempted Validations | 0 |
+| Successful Validations | 0 |
+
+---
 
 ---
 
