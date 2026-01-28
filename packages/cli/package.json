@@ -1,9 +1,9 @@
 {
   "name": "figma-drift",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "bin": {
-    "figma-drift": "./dist/cli.js"
+    "figma-drift": "dist/cli.js"
   },
   "scripts": {
     "dev": "npx tsx watch src/cli.ts",
