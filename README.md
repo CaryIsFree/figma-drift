@@ -358,7 +358,7 @@ First run downloads Chromium (~150MB), may take a minute. Just wait.
 
 After running `npm link`, use `figma-drift` command directly:
 ```bash
-npm link --workspace=@figma-drift/cli
+npm link --workspace=figma-drift
 figma-drift check --figma "..." --live "..."
 ```
 
