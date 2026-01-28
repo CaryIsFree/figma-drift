@@ -173,19 +173,29 @@ npm run dev -- check \
 #### Example Output
 
 ```
-Connecting to Figma...
-📦 Browser installation complete
-Comparing designs...
-
-Spec Diff
-   Colors missing: #1e1e1e, #e3e3e3
-   Fonts missing: Inter 24px
-   Spacing missing: 8px, 12px
+⠋ Fetching Figma data...
+✓ Browser installation complete
+⠙ Comparing...
 
 📂 Results saved to: .figma-drift/2026-01-28_15-30-45-123/
-Diff image saved to: diff.png
+💾 Diff image saved to: diff.png
 
-Visual diff: 10.10%
+📊 Drift Report
+================
+Figma:  https://www.figma.com/design/...
+Live:   https://your-staging-site.com/page
+Time:   2026-01-28T15:30:45.123Z
+
+🖼️  Visual Diff
+   Difference: 10.10%
+
+📐 Spec Diff
+   Colors missing:
+     - #1e1e1e (used in: Button, Header)
+   Fonts missing:
+     - Inter 24px 700 (used in: Title)
+
+❌ FAILED - Drift detected
 ```
 
 **Exit Codes:**

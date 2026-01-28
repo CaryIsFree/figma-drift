@@ -1,5 +1,5 @@
 {
-  "name": "@figma-drift/cli",
+  "name": "figma-drift",
   "version": "0.1.0",
   "type": "module",
   "bin": {

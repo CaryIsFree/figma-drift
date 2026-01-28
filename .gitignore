@@ -14,6 +14,7 @@ CHANGELOG.md
 PROJECT_STATUS.md
 OUTREACH_GUIDE.md
 phase-0-complete-framework.md
+RELEASE.md
 
 
 # Temporary/test output files (not committed)
@@ -31,3 +32,4 @@ tasks.md
 test-page.html
 nul
 phase-0-complete-framework.md
+SPEC.md
