@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { execSync } from 'child_process';
 import { chromium } from 'playwright';
 import { compare, type DriftReport, type CompareRequest } from '@figma-drift/backend';
+import * as FileManager from './file-manager.js';
 
 interface CheckOptions {
   figma: string;
@@ -83,7 +84,7 @@ program
       if (!token) {
         console.error('❌ Error: Figma access token is required');
         console.error('   Provide --token flag or set FIGMA_ACCESS_TOKEN in .env');
-        process.exit(1);
+        process.exit(2);
       }
 
       const request: CompareRequest = {
@@ -110,7 +111,7 @@ program
           } catch (_installError) {
             console.error('❌ Failed to install Chromium browser');
             console.error('   Run "npx playwright install chromium" manually');
-            process.exit(1);
+            process.exit(2);
           }
         } else {
           throw e;
@@ -121,7 +122,11 @@ program
         spinner.update(step);
       });
 
+      const timestamp = FileManager.generateTimestamp();
+      await FileManager.saveResults(timestamp, report);
+
       spinner.stop('✓ Comparison complete');
+      console.log(`\n📂 Results saved to: .figma-drift/${timestamp}/`);
 
       console.log('\n📊 Drift Report');
       console.log('================');
@@ -187,7 +192,7 @@ program
     } catch (error) {
       spinner.stop('✗ Failed');
       console.error('❌ Error:', error instanceof Error ? error.message : error);
-      process.exit(1);
+      process.exit(2);
     }
   });
 
