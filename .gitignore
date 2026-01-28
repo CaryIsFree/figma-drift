@@ -13,7 +13,7 @@ IMPLEMENTATION.md
 CHANGELOG.md
 PROJECT_STATUS.md
 OUTREACH_GUIDE.md
-phase-0-complete
+phase-0-complete-framework.md
 
 
 # Temporary/test output files (not committed)
@@ -30,3 +30,4 @@ packages/backend/debug-matcher.ts
 tasks.md
 test-page.html
 nul
+phase-0-complete-framework.md
