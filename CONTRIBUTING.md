@@ -1,6 +1,6 @@
 # Contributing to Figma Drift
 
-## 🧪 Phase 1C: Closed Beta
+## 🧪 Closed Beta
 
 Thank you for your interest in Figma Drift! Please note that we are currently in **Phase 1C: Closed Beta**.
 
