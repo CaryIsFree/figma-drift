@@ -34,22 +34,21 @@ To utilize these fixtures, run the `npx serve test-fixtures -p 5555` command. Th
 
 You need a **Figma Personal Access Token**. Get one from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings).
 
-**For CLI use:** Create a `.env` file in your current directory:
+Create a `.env` file in your current directory:
+
+**macOS / Linux:**
 ```bash
-# macOS / Linux
 echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
-
-# Windows (PowerShell)
-Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
-
-# Windows (CMD)
-echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
 ```
 
-**For development:** Copy to backend directory:
-```bash
-cp packages/backend/.env.example packages/backend/.env
-# Then edit packages/backend/.env with your token
+**Windows (PowerShell):**
+```powershell
+Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
+```
+
+**Windows (CMD):**
+```cmd
+echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
 ```
 
 > **Token priority:** CLI flags (`--token`) > Environment variables > `.env` file
