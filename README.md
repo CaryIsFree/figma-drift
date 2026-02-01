@@ -2,6 +2,32 @@
 
 > Detect visual drift between Figma designs and live implementations.
 
+## Prerequisites
+
+Figma Drift requires a **Figma Personal Access Token** to fetch design data. [Generate a token](https://www.figma.com/settings) before proceeding.
+
+### Setup Configuration
+Depending on your use case, create a `.env` file in the appropriate location:
+
+-   **CLI Usage:** Create `.env` in your **current directory** containing only:
+    ```bash
+    FIGMA_ACCESS_TOKEN=figd_your_token_here
+    ```
+-   **Development Setup:** Create **`packages/backend/.env`**. This file supports:
+    -   `FIGMA_ACCESS_TOKEN` (Required)
+    -   `PORT` (Default: 3000)
+    -   `CORS_ALLOWED_ORIGINS`, `ALLOW_LOCALHOST` (Optional)
+
+---
+
+## Test Fixtures
+
+Test fixtures are local HTML files stored in the `/test-fixtures/` directory at the repository root. They are designed to simulate live websites, enabling you to test Figma Drift without requiring a real hosted environment.
+
+To utilize these fixtures, run the `npx serve test-fixtures -p 5555` command. This starts a local server at `http://localhost:5555`, allowing you to perform comparisons against local files. Using fixtures ensures a consistent testing environment and is the recommended way to verify tool functionality during development.
+
+---
+
 ## Quick Start
 
 ### Installation Options
@@ -10,11 +36,26 @@ Figma Drift can be used in three ways, depending on your workflow:
 
 #### 1. On-the-fly (Recommended for Testing)
 Run directly without installing. This is the fastest way to verify a design.
+
+**For live sites:**
 ```bash
 npx figma-drift check \
   --figma "<YOUR_FIGMA_FRAME_URL>" \
   --live "<YOUR_LIVE_SITE_URL>"
 ```
+
+**For local HTML files:**
+```bash
+# First, serve your local files (in one terminal)
+npx serve test-fixtures -p 5555
+
+# Then run the comparison (in another terminal)
+npx figma-drift check \
+  --figma "<YOUR_FIGMA_FRAME_URL>" \
+  --live "http://localhost:5555/your-file.html"
+```
+
+> **Note:** Local HTML files must be served via HTTP for Playwright to capture screenshots. The `npx serve test-fixtures -p 5555` command serves files from `test-fixtures/` on `http://localhost:5555`.
 
 #### 2. Global Install
 Install globally for access to the `figma-drift` command from any directory.
@@ -92,7 +133,7 @@ A pixel-perfect comparison highlighting differences in red. The tool also detect
 
 ---
 
-### Organized Results
+## Organized Results
 
 Every time you run a check, `figma-drift` automatically organizes the results into a timestamped directory structure in your project's root.
 
@@ -116,11 +157,9 @@ echo ".figma-drift/" >> .gitignore
 
 ---
 
-### Full System Setup (Development)
+## Full System Setup (Development)
 
-Use this setup when developing the core engine or the CLI client.
-
-#### Prerequisites
+### Development Prerequisites
 
 - **Node.js 20+** (required for Playwright compatibility)
 - **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings)
@@ -129,7 +168,7 @@ Use this setup when developing the core engine or the CLI client.
 
 ```bash
 # Clone repository
-git clone https://github.com/XeroS/figma-drift.git
+git clone https://github.com/CaryIsFree/figma-drift.git
 cd figma-drift
 
 # Install dependencies
@@ -139,13 +178,10 @@ npm install
 npm run build
 ```
 
-### Configuration
+### Backend Configuration
 
 ```bash
-# Copy example environment file
-cp .env.example packages/backend/.env
-
-# Edit packages/backend/.env and add your Figma token
+# Create **packages/backend/.env** and add your Figma token
 FIGMA_ACCESS_TOKEN=figd_your_token_here
 PORT=3000
 ```
@@ -154,10 +190,10 @@ PORT=3000
 
 You need **3 terminals** to run the full system during development:
 
-#### Terminal 1: Serve Test Fixture (optional, for testing)
+#### Terminal 1: Serve Test Fixtures (optional, for testing)
 
 ```bash
-npm run serve:fixture
+npx serve test-fixtures -p 5555
 # Serves test-fixtures/ on http://localhost:5555
 ```
 
@@ -180,6 +216,21 @@ npm run dev -- check \
    --live "<YOUR_LIVE_SITE_URL>"
 ```
 
+### Development Scripts
+
+- **Test**: Run all unit and integration tests.
+  ```bash
+  npm test
+  ```
+- **Lint**: Run linting checks across all packages.
+  ```bash
+  npm run lint
+  ```
+- **Typecheck**: Verify TypeScript types across the monorepo.
+  ```bash
+  npm run typecheck
+  ```
+
 **Required Arguments:**
 - `--figma <url>` - Figma frame URL (must include `node-id` parameter)
 - `--live <url>` - Live page URL
@@ -195,7 +246,7 @@ npm run dev -- check \
 
 #### Example Output
 
-```
+```text
 ⠋ Fetching Figma data...
 ✓ Browser installation complete
 ⠙ Comparing...
@@ -221,27 +272,7 @@ Time:   2026-01-28T15:30:45.123Z
 ❌ FAILED - Drift detected
 ```
 
-**Exit Codes:**
-- `0` - PASSED (no significant drift)
-- `1` - DRIFT DETECTED (visual or specification mismatch)
-- `2` - ERROR (API failure, invalid URL, timeout)
-
 ---
-
-## Full System Setup (Development)
-
-For development and running the backend server, use this setup.
-
-The tool supports all Figma URL formats:
-- `figma.com/design/...` (new format)
-- `figma.com/file/...` (legacy format)
-
-**To get the correct URL:**
-
-1. Open your Figma file
-2. Select a frame in the canvas
-3. Copy URL from browser address bar
-4. Ensure it has a `node-id` parameter (e.g., `?node-id=1-299`)
 
 ## API Reference
 
@@ -302,11 +333,11 @@ Health check endpoint.
 }
 ```
 
-## Configuration
+## Configuration Reference
 
 ### Environment Variables
 
-**For Standandalone CLI (.env file in current directory):**
+**For Standalone CLI (.env file in current directory):**
 | Variable | Description | Required |
 |----------|-------------|---------|
 | `FIGMA_ACCESS_TOKEN` | Figma Personal Access Token | Yes |
@@ -337,6 +368,12 @@ Controls sensitivity of pixel diffing:
 | Runtime | Node.js via tsx | Playwright compatibility |
 | Language | TypeScript (strict) | Type safety |
 
+### Package Structure
+
+- **packages/backend**: The core comparison engine, identified as `figma-drift-core` in `package.json`, handles Figma API integration and image comparison.
+- **packages/cli**: The command-line client provides a user-friendly interface for executing drift checks.
+- **packages/figma-plugin**: A planned plugin to integrate comparison features directly within the Figma design environment.
+
 ## Tester Guide: Jargon vs. Meaning
 
 | Technical Term | Designer Term | What it does |
@@ -360,7 +397,7 @@ Your Figma account hit rate limits:
 - **Free tier**: 6 requests/month per endpoint
 - **Dev/Full seat**: 10 requests/minute
 
-**Solution:** Rate limit exceeded—requires Figma Professional/Dev tier for increased limits or wait for monthly reset.
+**Solution:** Requires Figma Professional/Dev tier for increased limits or wait for monthly reset.
 
 ### "Figma API error: 403 Forbidden"
 
@@ -381,7 +418,7 @@ First run downloads Chromium (~150MB), may take a minute. Just wait.
 
 After running `npm link`, use `figma-drift` command directly:
 ```bash
-npm link --workspace=figma-drift
+npm link -w figma-drift
 figma-drift check --figma "..." --live "..."
 ```
 
@@ -393,7 +430,7 @@ Fixed in latest version. If you see this, pull latest code.
 
 Figma Drift is currently in **Closed Beta**. We are actively looking for technical validation from developers and designers.
 
-- **Found a bug?** Please [open an issue](https://github.com/XeroS/figma-drift/issues) using our bug report template.
+- **Found a bug?** Please [open an issue](https://github.com/CaryIsFree/figma-drift/issues) using our bug report template.
 - **Have feedback?** We'd love to hear your thoughts! Please fill out our [Technical Feedback Survey](FEEDBACK.md).
 - **Want to contribute?** Please read our [Contributing Guidelines](CONTRIBUTING.md) and Beta Agreement.
 
