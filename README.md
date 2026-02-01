@@ -30,12 +30,33 @@ To utilize these fixtures, run the `npx serve test-fixtures -p 5555` command. Th
 
 ## Quick Start
 
-### Installation Options
+### Prerequisites
 
-Figma Drift can be used in three ways, depending on your workflow:
+You need a **Figma Personal Access Token**. Get one from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings).
 
-#### 1. On-the-fly (Recommended for Testing)
-Run directly without installing. This is the fastest way to verify a design.
+**For CLI use:** Create a `.env` file in your current directory:
+```bash
+# macOS / Linux
+echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
+
+# Windows (PowerShell)
+Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
+
+# Windows (CMD)
+echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
+```
+
+**For development:** Copy to backend directory:
+```bash
+cp packages/backend/.env.example packages/backend/.env
+# Then edit packages/backend/.env with your token
+```
+
+> **Token priority:** CLI flags (`--token`) > Environment variables > `.env` file
+
+### Run a Comparison
+
+Use the CLI to compare your Figma design against a live implementation:
 
 **For live sites:**
 ```bash
@@ -44,74 +65,27 @@ npx figma-drift check \
   --live "<YOUR_LIVE_SITE_URL>"
 ```
 
-**For local HTML files:**
+**For local HTML files (like test fixtures):**
 ```bash
-# First, serve your local files (in one terminal)
-npx serve test-fixtures -p 5555
-
-# Then run the comparison (in another terminal)
 npx figma-drift check \
   --figma "<YOUR_FIGMA_FRAME_URL>" \
   --live "http://localhost:5555/your-file.html"
 ```
 
-> **Note:** Local HTML files must be served via HTTP for Playwright to capture screenshots. The `npx serve test-fixtures -p 5555` command serves files from `test-fixtures/` on `http://localhost:5555`.
+> **Note:** Local HTML files must be served via HTTP. The `npx serve test-fixtures -p 5555` command serves files from `test-fixtures/` on `http://localhost:5555`.
 
-#### 2. Global Install
-Install globally for access to the `figma-drift` command from any directory.
-```bash
-npm install -g figma-drift
-figma-drift check --figma "..." --live "..."
-```
+### What Happens
 
-#### 3. Local Project Dependency
-Add it to your project's `devDependencies` for use in CI/CD or shared scripts.
-```bash
-npm install --save-dev figma-drift
-npx figma-drift check --figma "..." --live "..."
-```
+The CLI automatically:
+- Downloads Playwright browsers on first run
+- Captures screenshots of both designs
+- Creates a `.figma-drift/` folder in your project root with:
+  - `figma.png` - Figma design screenshot
+  - `live.png` - Live implementation screenshot
+  - `diff.png` - Visual difference (red highlights)
+  - `report.json` - Detailed comparison results
 
----
-
-## 30-Second Setup
-
-**Zero-Configuration:** Just run the CLI - it will automatically download Playwright browsers on first run.
-
-### 1. Configure Figma Access
-The tool requires a [Figma Personal Access Token](https://www.figma.com/settings). Create a `.env` file in your project root:
-
-**macOS / Linux**:
-```bash
-echo "FIGMA_ACCESS_TOKEN=figd_your_token_here" > .env
-```
-
-**Windows (PowerShell)**:
-```powershell
-Set-Content -Path .env -Value "FIGMA_ACCESS_TOKEN=figd_your_token_here"
-```
-
-**Windows (CMD)**:
-```cmd
-echo FIGMA_ACCESS_TOKEN=figd_your_token_here > .env
-```
-
-### 2. Run your first comparison
-```bash
-npx figma-drift check \
-  --figma "<YOUR_FIGMA_FRAME_URL>" \
-  --live "<YOUR_LIVE_SITE_URL>" \
-  --output diff.png
-```
-
-**Configuration Priority:**
-1. CLI flags (e.g., `--token`)
-2. Environment variables (e.g., `export FIGMA_ACCESS_TOKEN=...`)
-3. `.env` file in current directory
-
-**Exit Codes for CI/CD:**
-- `0` - PASSED (no significant drift detected)
-- `1` - DRIFT DETECTED (visual or specification mismatch)
-- `2` - ERROR (API failure, invalid URL, timeout)
+> **No installation needed:** Use `npx figma-drift` to run directly. Test fixtures don't need to be installed—just serve them with `npx serve test-fixtures -p 5555`.
 
 ---
 
@@ -157,7 +131,9 @@ echo ".figma-drift/" >> .gitignore
 
 ---
 
-## Full System Setup (Development)
+## Development Setup (For Contributors)
+
+This section is for contributors who want to work on Figma Drift source code. If you just want to **use** the tool, see Quick Start above—you don't need to follow these steps.
 
 ### Development Prerequisites
 
