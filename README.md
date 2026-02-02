@@ -1,5 +1,9 @@
 # Figma Drift
 
+
+https://github.com/user-attachments/assets/00893651-c3c5-45ba-a1ab-3e53481c3268
+
+
 > Detect visual drift between Figma designs and live implementations.
 
 ## Prerequisites
