@@ -1,14 +1,18 @@
 # Figma Drift
 
 
-https://github.com/user-attachments/assets/00893651-c3c5-45ba-a1ab-3e53481c3268
+## Getting Started Video
+
+<video src="https://github.com/user-attachments/assets/00893651-c3c5-45ba-a1ab-3e53481c3268" controls="controls" style="max-width: 100%;">
+  Your browser does not support the video tag.
+</video>
 
 
 > Detect visual drift between Figma designs and live implementations.
 
 ## Prerequisites
 
-Figma Drift requires a **Figma Personal Access Token** to fetch design data. [Generate a token](https://www.figma.com/settings) before proceeding.
+Figma Drift requires a **Figma Personal Access Token** to fetch design data. [Generate a token](https://www.figma.com/settings) and ensure you check the **`file_content:read`** scope before proceeding.
 
 ### Setup Configuration
 Depending on your use case, create a `.env` file in the appropriate location:
@@ -36,7 +40,7 @@ To utilize these fixtures, run the `npx serve test-fixtures -p 5555` command. Th
 
 ### Prerequisites
 
-You need a **Figma Personal Access Token**. Get one from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings).
+You need a **Figma Personal Access Token**. Get one from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings). **Crucial:** Ensure you select the `file_content:read` scope when creating the token.
 
 Create a `.env` file in your current directory:
 
@@ -141,7 +145,7 @@ This section is for contributors who want to work on Figma Drift source code. If
 ### Development Prerequisites
 
 - **Node.js 20+** (required for Playwright compatibility)
-- **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings)
+- **Figma Personal Access Token** - Get from [Figma Settings → Personal Access Tokens](https://www.figma.com/settings) (requires `file_content:read` scope)
 
 ### Installation
 
@@ -381,6 +385,7 @@ Your Figma account hit rate limits:
 ### "Figma API error: 403 Forbidden"
 
 - Token is invalid or expired
+- **Scope missing**: Ensure you selected the `file_content:read` scope when creating the token
 - Generate new token from Figma settings
 - Update `FIGMA_ACCESS_TOKEN` in `.env`
 
